@@ -1,0 +1,42 @@
+# NotifyPro Environment Variables Template
+# Copy this to backend/.env and fill in your values
+
+# App Config
+NODE_ENV=development
+PORT=3000
+BASE_URL=http://localhost:3000
+
+# MongoDB - Use your existing MongoDB or MongoDB Atlas
+MONGODB_URI=mongodb://localhost:27017/notifypro
+# OR MongoDB Atlas:
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/notifypro
+
+# Redis - For BullMQ job queue
+REDIS_URL=redis://localhost:6379
+# OR AWS ElastiCache:
+# REDIS_URL=redis://your-elasticache.amazonaws.com:6379
+
+# GHL OAuth - Get these from https://marketplace.gohighlevel.com
+GHL_CLIENT_ID=your_client_id_here
+GHL_CLIENT_SECRET=your_client_secret_here
+GHL_REDIRECT_URI=http://localhost:3000/oauth/callback
+GHL_OAUTH_URL=https://marketplace.gohighlevel.com/oauth
+
+# Web Push VAPID Keys - Generate with: npx web-push generate-vapid-keys
+VAPID_PUBLIC_KEY=BMxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+VAPID_PRIVATE_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+VAPID_SUBJECT=mailto:yourname@yourdomain.com
+
+# AWS SES - For email notifications
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXX
+AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SES_FROM_EMAIL=notifications@yourdomain.com
+SES_FROM_NAME=NotifyPro
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:5173
+
+# Encryption Key - Generate random string (min 32 chars)
+ENCRYPTION_KEY=generate_a_random_32_character_key_here
+
