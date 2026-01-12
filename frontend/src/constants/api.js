@@ -4,10 +4,10 @@
  */
 
 // Base API URL - can be overridden via environment variable
-export const API_BASE_URL = "https://published-employers-belly-judy.trycloudflare.com" || 'http://localhost:3000';
+export const API_BASE_URL = "https://notificationproapi.vaultsuite.store" || 'http://localhost:3000';
 
 // Frontend URL (for redirects)
-export const FRONTEND_URL = "https://stockings-shoe-should-demonstrate.trycloudflare.com" || window.location.origin;
+export const FRONTEND_URL = "https://notificationpro.vaultsuite.store" || window.location.origin;
 
 // API Endpoints
 export const API_ENDPOINTS = {
