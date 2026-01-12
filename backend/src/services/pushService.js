@@ -1,5 +1,6 @@
 const webpush = require('web-push');
 const PushSubscription = require('../models/PushSubscription');
+const NotificationPreference = require('../models/NotificationPreference');
 const logger = require('../utils/logger');
 
 /**
@@ -8,12 +9,27 @@ const logger = require('../utils/logger');
  */
 class PushService {
   constructor() {
-    // Configure VAPID keys
-    webpush.setVapidDetails(
-      process.env.VAPID_SUBJECT,
-      process.env.VAPID_PUBLIC_KEY,
-      process.env.VAPID_PRIVATE_KEY
-    );
+    this.vapidConfigured = false;
+  }
+
+  /**
+   * Initialize VAPID details (lazy initialization)
+   */
+  initializeVapid() {
+    if (this.vapidConfigured) {
+      return;
+    }
+
+    const subject = process.env.VAPID_SUBJECT;
+    const publicKey = process.env.VAPID_PUBLIC_KEY;
+    const privateKey = process.env.VAPID_PRIVATE_KEY;
+
+    if (!subject || !publicKey || !privateKey) {
+      throw new Error('VAPID keys not configured. Please set VAPID_SUBJECT, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY in .env file');
+    }
+
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+    this.vapidConfigured = true;
   }
 
   /**
@@ -21,6 +37,9 @@ class PushService {
    */
   async sendToLocation(locationId, payload) {
     try {
+      // Initialize VAPID if not already done
+      this.initializeVapid();
+
       // Get all active subscriptions
       const subscriptions = await PushSubscription.findActiveByLocation(locationId);
       
@@ -28,6 +47,10 @@ class PushService {
         logger.warn(`No active push subscriptions for location: ${locationId}`);
         return { sent: 0, failed: 0 };
       }
+
+      // Get push preferences for position
+      const preferences = await NotificationPreference.findByLocation(locationId);
+      const position = preferences?.channels?.push?.position || 'top-right';
 
       // Prepare notification payload
       const notificationPayload = JSON.stringify({
@@ -38,9 +61,10 @@ class PushService {
         data: {
           url: payload.url || '',
           conversationId: payload.conversationId,
-          contactId: payload.contactId
+          contactId: payload.contactId,
+          position: position // Include position in payload
         },
-        tag: 'conversation-notification',
+        tag: 'conversation-notification ' + new Date().getTime(),
         requireInteraction: payload.isPriority || false
       });
 
@@ -67,6 +91,9 @@ class PushService {
    */
   async sendToSubscription(pushSub, payload) {
     try {
+      // Initialize VAPID if not already done
+      this.initializeVapid();
+
       await webpush.sendNotification(pushSub.subscription, payload);
       
       // Update last used timestamp

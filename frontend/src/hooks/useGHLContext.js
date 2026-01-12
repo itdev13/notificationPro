@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { getDecryptUserDataUrl, getOAuthStatusUrl, FRONTEND_URL } from '../constants/api';
 
 /**
  * Hook to get user context from parent application
@@ -43,11 +44,8 @@ export const useGHLContext = () => {
                 }
                 resolvedRef.current = true;
                 
-                // Backend URL (use env variable or default to localhost)
-                const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-                const decryptUrl = `${backendUrl}/api/auth/decrypt-user-data`;
-                
-                fetch(decryptUrl, {
+                // Use centralized API URL
+                fetch(getDecryptUserDataUrl(), {
                   method: 'POST',
                   headers: { 
                     'Content-Type': 'application/json',
@@ -102,36 +100,96 @@ export const useGHLContext = () => {
             type: userData.type || (userData.activeLocation ? 'Location' : 'Agency')
           };
 
+          // Check if app is installed (has OAuth token)
+          if (ctx.locationId) {
+            try {
+              const statusResponse = await fetch(`${getOAuthStatusUrl()}?locationId=${ctx.locationId}`);
+              const statusData = await statusResponse.json();
+              
+              if (!statusData.connected) {
+                setError('INSTALL_REQUIRED');
+                setLoading(false);
+                return;
+              }
+            } catch (statusError) {
+              // If status check fails, assume not installed
+              console.warn('OAuth status check failed:', statusError);
+              setError('INSTALL_REQUIRED');
+              setLoading(false);
+              return;
+            }
+          }
+
           setContext(ctx);
           setLoading(false);
 
         } catch (err) {
+          console.log('err', err, err.message);
+          
+          // If authentication timeout, check if app is installed
+          if (err.message === 'Authentication timeout') {
+            // Try to get locationId from URL params first
+            const params = new URLSearchParams(window.location.search);
+            console.log('params', params);
+            const urlLocationId = params.get('location_id') || params.get('locationId');
+            console.log('urlLocationId', urlLocationId);
+            // If we have locationId, check OAuth status
+            if (urlLocationId) {
+              try {
+                const statusResponse = await fetch(`${getOAuthStatusUrl()}?locationId=${urlLocationId}`);
+                const statusData = await statusResponse.json();
+                
+                if (statusData.connected) {
+                  // App is installed but connection is slow
+                  setError('SLOW_CONNECTION');
+                  setLoading(false);
+                  return;
+                } else {
+                  // App not installed
+                  setError('INSTALL_REQUIRED');
+                  setLoading(false);
+                  return;
+                }
+              } catch (statusError) {
+                // If status check fails, assume slow connection (app might be installed)
+                console.warn('OAuth status check failed during timeout:', statusError);
+                setError('SLOW_CONNECTION');
+                setLoading(false);
+                return;
+              }
+            } else {
+              // No locationId available - could be not installed or slow connection
+              // Try to check if we can get any location info
+              setError('SLOW_CONNECTION');
+              setLoading(false);
+              return;
+            }
+          }
 
-          // Check if max attempts reached
-          if (err.message === 'MAX_ATTEMPTS_REACHED' || attemptCountRef.current >= MAX_ATTEMPTS) {
+           // Check if max attempts reached
+           if (err.message === 'MAX_ATTEMPTS_REACHED' || attemptCountRef.current >= MAX_ATTEMPTS) {
             setError('INSTALL_REQUIRED');
             setLoading(false);
-          return;
-        }
+            return;
+          }
 
           // Fallback: URL parameters (for development/testing)
-            const params = new URLSearchParams(window.location.search);
+          const params = new URLSearchParams(window.location.search);
           const urlLocationId = params.get('location_id') || params.get('locationId');
           const urlUserId = params.get('user_id') || params.get('userId');
           const urlCompanyId = params.get('company_id') || params.get('companyId');
 
           if (urlLocationId && urlUserId) {
-                setContext({
+            setContext({
               locationId: urlLocationId,
               companyId: urlCompanyId || 'unknown',
               userId: urlUserId,
-                  type: 'Location'
-                });
-                setLoading(false);
-          } else {
-            // No context available - show error
-            setError('Failed to get GHL context. Please ensure the app is opened from within GoHighLevel.');
+              type: 'Location'
+            });
             setLoading(false);
+          } else {
+            // No context available - redirect to about page
+            window.location.href = `${FRONTEND_URL}/about.html`;
           }
         }
       } catch (err) {

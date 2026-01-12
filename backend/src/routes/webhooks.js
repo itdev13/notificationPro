@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const notificationQueue = require('../queues/notificationQueue');
+const { addJob, isAvailable } = require('../queues/notificationQueue');
 const logger = require('../utils/logger');
 
 /**
@@ -39,11 +39,15 @@ router.post('/inbound-message', async (req, res) => {
     };
 
     // Add job to queue (don't wait for processing)
-    await notificationQueue.add('process-notification', messageData, {
+    const job = await addJob('process-notification', messageData, {
       priority: 1 // Normal priority
     });
 
-    logger.info('✅ Notification queued successfully');
+    if (job) {
+      logger.info('✅ Notification queued successfully');
+    } else {
+      logger.warn('⚠️ Notification not queued - Redis unavailable');
+    }
 
     // Respond immediately to GHL
     res.status(200).json({ 

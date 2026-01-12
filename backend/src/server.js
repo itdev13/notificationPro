@@ -110,7 +110,7 @@ class NotifyProApp {
 
   setupRoutes() {
     // Import rate limiters
-    const { apiLimiter, webhookLimiter } = require('./middleware/rateLimiter');
+    const { apiLimiter, authLimiter, webhookLimiter } = require('./middleware/rateLimiter');
     
     // Health check (no rate limit)
     this.app.get('/health', (req, res) => {
@@ -124,6 +124,10 @@ class NotifyProApp {
     // OAuth routes (no rate limit - GHL handles this)
     const oauthRoutes = require('./routes/oauth');
     this.app.use('/oauth', oauthRoutes);
+
+    // Auth routes (strict rate limiting)
+    const authRoutes = require('./routes/auth');
+    this.app.use('/api/auth', authLimiter, authRoutes);
 
     // Webhook routes (lenient rate limiting)
     const webhookRoutes = require('./routes/webhooks');

@@ -19,8 +19,19 @@ const notificationPreferenceSchema = new mongoose.Schema({
   // Notification channels
   channels: {
     push: {
-      enabled: { type: Boolean, default: true },
-      sound: { type: Boolean, default: true }
+      enabled: { type: Boolean, default: false },
+      sound: { type: Boolean, default: true },
+      position: { 
+        type: String, 
+        default: 'top-right',
+        enum: ['top-right', 'top-left', 'bottom-right', 'bottom-left'],
+        validate: {
+          validator: function(v) {
+            return ['top-right', 'top-left', 'bottom-right', 'bottom-left'].includes(v);
+          },
+          message: 'Position must be one of: top-right, top-left, bottom-right, bottom-left'
+        }
+      }
     },
     email: {
       enabled: { type: Boolean, default: false },

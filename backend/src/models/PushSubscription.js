@@ -46,7 +46,7 @@ const pushSubscriptionSchema = new mongoose.Schema({
 
 // Indexes
 pushSubscriptionSchema.index({ locationId: 1, isActive: 1 });
-pushSubscriptionSchema.index({ endpoint: 1 }, { unique: true });
+// Note: subscription.endpoint already has unique: true in schema (line 24)
 
 // Static methods
 pushSubscriptionSchema.statics.findActiveByLocation = async function(locationId) {
