@@ -188,8 +188,13 @@ export const useGHLContext = () => {
             });
             setLoading(false);
           } else {
-            // No context available - redirect to about page
-            window.location.href = `${FRONTEND_URL}/about.html`;
+            // No context available - redirect to about page (only if not already there)
+            if (!window.location.pathname.includes('about.html')) {
+              window.location.href = `${FRONTEND_URL}/about.html`;
+            } else {
+              // Already on about.html, don't redirect
+              setLoading(false);
+            }
           }
         }
       } catch (err) {
