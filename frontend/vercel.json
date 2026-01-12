@@ -1,9 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/((?!about\\.html|service-worker\\.js|assets).*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-
