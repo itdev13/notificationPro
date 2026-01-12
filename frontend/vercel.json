@@ -1,16 +1,8 @@
 {
-  "routes": [
+  "rewrites": [
     {
-      "src": "/about.html",
-      "dest": "/about.html"
-    },
-    {
-      "src": "/service-worker.js",
-      "dest": "/service-worker.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/((?!about\\.html|service-worker\\.js|assets).*)",
+      "destination": "/index.html"
     }
   ]
 }
