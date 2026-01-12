@@ -88,7 +88,7 @@ class NotifyProApp {
     this.app.use(express.urlencoded({ extended: true }));
     
     // Serve static files from frontend/public folder
-    this.app.use(express.static(path.join(__dirname, '../../frontend/public')));
+    this.app.use(express.static(path.join(__dirname, '../public')));
 
     // Request logging
     this.app.use((req, res, next) => {
