@@ -188,9 +188,9 @@ export const useGHLContext = () => {
             });
             setLoading(false);
           } else {
-            // No context available - redirect to about page on backend
+            // No context available - redirect to about page on FRONTEND
             if (!window.location.pathname.includes('about.html')) {
-              window.location.href = `https://notificationproapi.vaultsuite.store/about.html`;
+              window.location.href = `${FRONTEND_URL}/about.html`;
             } else {
               // Already on about.html, don't redirect
               setLoading(false);
