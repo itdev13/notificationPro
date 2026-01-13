@@ -189,10 +189,16 @@ export const useGHLContext = () => {
             setLoading(false);
           } else {
             // No context available - redirect to about page on FRONTEND
-            if (!window.location.pathname.includes('about.html')) {
+            // Only redirect if we're on the main React app (not already on a static page)
+            const currentPath = window.location.pathname;
+            const isOnStaticPage = currentPath.includes('.html') && currentPath !== '/index.html';
+            
+            if (!isOnStaticPage && currentPath !== '/about.html') {
+              console.log('🔄 Redirecting to about.html - no context available');
               window.location.href = `${FRONTEND_URL}/about.html`;
             } else {
-              // Already on about.html, don't redirect
+              // Already on a static page, don't redirect
+              console.log('⏸️ On static page, not redirecting');
               setLoading(false);
             }
           }
