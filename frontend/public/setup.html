@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NotifyPro - Setup & Documentation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f7fa;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 60px 40px;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+
+    .section h2 {
+      font-size: 32px;
+      color: #667eea;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #e2e8f0;
+    }
+
+    .section h3 {
+      font-size: 22px;
+      color: #1F2937;
+      margin: 25px 0 15px 0;
+    }
+
+    .section p {
+      margin-bottom: 15px;
+      color: #4B5563;
+      font-size: 16px;
+    }
+
+    .steps {
+      counter-reset: step-counter;
+    }
+
+    .step {
+      position: relative;
+      padding: 25px;
+      margin: 25px 0;
+      background: #F9FAFB;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      counter-increment: step-counter;
+    }
+
+    .step::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: -20px;
+      top: 20px;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .step h4 {
+      font-size: 20px;
+      color: #1F2937;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      margin-bottom: 10px;
+    }
+
+    .code-block {
+      background: #1F2937;
+      color: #10B981;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+
+    .info-box {
+      background: #EFF6FF;
+      border-left: 4px solid #3B82F6;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .info-box strong {
+      color: #1E40AF;
+    }
+
+    .warning-box {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .warning-box strong {
+      color: #92400E;
+    }
+
+    .success-box {
+      background: #D1FAE5;
+      border-left: 4px solid #10B981;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .success-box strong {
+      color: #065F46;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: 12px 0;
+      padding-left: 35px;
+      position: relative;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10B981;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .settings-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .settings-table th,
+    .settings-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .settings-table th {
+      background: #F9FAFB;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .footer {
+      background: #1F2937;
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 32px; }
+      .content { padding: 40px 20px; }
+      .section h2 { font-size: 26px; }
+      .step { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 Setup & Documentation</h1>
+      <p>Get NotifyPro up and running in minutes</p>
+    </div>
+
+    <div class="content">
+      <!-- Quick Start -->
+      <div class="section">
+        <h2>⚡ Quick Start Guide</h2>
+        <p>Follow these simple steps to start receiving real-time notifications:</p>
+
+        <div class="steps">
+          <div class="step">
+            <h4>Install from GHL Marketplace</h4>
+            <p>Navigate to the GoHighLevel Marketplace and search for "NotifyPro". Click "Install" and authorize the app to access your location.</p>
+          </div>
+
+          <div class="step">
+            <h4>Configure OAuth Permissions</h4>
+            <p>Grant NotifyPro permission to:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+              <li>Read conversations</li>
+              <li>Access contact information</li>
+              <li>Receive webhook notifications</li>
+            </ul>
+            <div class="info-box">
+              <strong>Note:</strong> These permissions are required for NotifyPro to send you real-time alerts.
+            </div>
+          </div>
+
+          <div class="step">
+            <h4>Access NotifyPro Settings</h4>
+            <p>After installation, find "NotifyPro" in your sub-account's left sidebar. Click to open the settings dashboard.</p>
+          </div>
+
+          <div class="step">
+            <h4>Enable Notification Channels</h4>
+            <p>Choose your preferred notification methods:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+              <li><strong>Browser Push:</strong> Click "Enable Push Notifications" (allow browser permission)</li>
+              <li><strong>Email:</strong> Enter your email address</li>
+              <li><strong>Slack:</strong> Provide your Slack webhook URL (optional)</li>
+            </ul>
+          </div>
+
+          <div class="step">
+            <h4>Set Business Hours (Optional)</h4>
+            <p>Configure when you want to receive notifications:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+              <li>Set start and end times</li>
+              <li>Choose active days of the week</li>
+              <li>Select your timezone</li>
+            </ul>
+          </div>
+
+          <div class="step">
+            <h4>Add Priority Keywords (Optional)</h4>
+            <p>Define important keywords for special alerts (e.g., "urgent", "refund", "cancel"). Messages containing these keywords will get priority notifications.</p>
+          </div>
+
+          <div class="step">
+            <h4>Test Your Notifications</h4>
+            <p>Click "Send Test Notification" to verify everything is working correctly. You should receive a test alert on all enabled channels.</p>
+          </div>
+        </div>
+
+        <div class="success-box">
+          <strong>✓ Setup Complete!</strong> You're now ready to receive real-time notifications for new GoHighLevel conversations.
+        </div>
+      </div>
+
+      <!-- Notification Channels -->
+      <div class="section">
+        <h2>📬 Notification Channels</h2>
+
+        <h3>🔔 Browser Push Notifications</h3>
+        <p>Receive instant desktop notifications even when your browser is closed.</p>
+        <div class="info-box">
+          <strong>Setup:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Click "Enable Push Notifications" in settings</li>
+            <li>Allow browser permission when prompted</li>
+            <li>Notifications will work even when GHL is not open</li>
+          </ol>
+        </div>
+        <p><strong>Supported Browsers:</strong> Chrome, Firefox, Edge, Safari (macOS 13+)</p>
+
+        <h3>📧 Email Notifications</h3>
+        <p>Get detailed email alerts with conversation context and contact information.</p>
+        <div class="info-box">
+          <strong>Setup:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Enter your email address in settings</li>
+            <li>Click "Verify Email" to confirm</li>
+            <li>Check spam folder if verification email doesn't arrive</li>
+          </ol>
+        </div>
+        <p><strong>Email Contains:</strong> Contact name, phone/email, message preview, timestamp, direct link to conversation</p>
+
+        <h3>💬 Slack Integration</h3>
+        <p>Forward notifications to your Slack workspace for team collaboration.</p>
+        <div class="info-box">
+          <strong>Setup:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Create a Slack Incoming Webhook in your workspace</li>
+            <li>Copy the webhook URL</li>
+            <li>Paste it into NotifyPro settings</li>
+            <li>Choose your notification channel</li>
+          </ol>
+        </div>
+        
+        <div class="warning-box">
+          <strong>Getting a Slack Webhook URL:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Go to <code>https://api.slack.com/apps</code></li>
+            <li>Create a new app or select existing app</li>
+            <li>Enable "Incoming Webhooks"</li>
+            <li>Add webhook to your workspace</li>
+            <li>Copy the webhook URL</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Advanced Configuration -->
+      <div class="section">
+        <h2>⚙️ Advanced Configuration</h2>
+
+        <h3>⏰ Business Hours</h3>
+        <p>Control when you receive notifications to avoid alert fatigue:</p>
+        <table class="settings-table">
+          <thead>
+            <tr>
+              <th>Setting</th>
+              <th>Description</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Start Time</strong></td>
+              <td>When notifications begin</td>
+              <td>9:00 AM</td>
+            </tr>
+            <tr>
+              <td><strong>End Time</strong></td>
+              <td>When notifications stop</td>
+              <td>6:00 PM</td>
+            </tr>
+            <tr>
+              <td><strong>Active Days</strong></td>
+              <td>Days to receive notifications</td>
+              <td>Mon-Fri</td>
+            </tr>
+            <tr>
+              <td><strong>Timezone</strong></td>
+              <td>Your local timezone</td>
+              <td>America/New_York</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>🎯 Priority Keywords</h3>
+        <p>Get special alerts for important messages:</p>
+        <ul class="feature-list">
+          <li>Add keywords or phrases (case-insensitive)</li>
+          <li>Priority notifications bypass business hours</li>
+          <li>Different sound/appearance for priority alerts</li>
+          <li>Great for urgent terms like "urgent", "emergency", "asap"</li>
+        </ul>
+
+        <h3>🔕 Notification Filters</h3>
+        <p>Customize which conversations trigger notifications:</p>
+        <ul class="feature-list">
+          <li><strong>New Conversations Only:</strong> Only notify for brand new chats</li>
+          <li><strong>All Messages:</strong> Notify for every new message</li>
+          <li><strong>Unassigned Only:</strong> Only unassigned conversations</li>
+          <li><strong>First Message Only:</strong> Just the first message in a thread</li>
+        </ul>
+      </div>
+
+      <!-- Troubleshooting -->
+      <div class="section">
+        <h2>🔧 Troubleshooting</h2>
+
+        <h3>Not Receiving Browser Notifications?</h3>
+        <div class="warning-box">
+          <strong>Common Solutions:</strong>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Check browser notification permissions (Settings → Privacy → Notifications)</li>
+            <li>Make sure Do Not Disturb is off (macOS/Windows)</li>
+            <li>Try re-enabling push notifications in NotifyPro settings</li>
+            <li>Clear browser cache and cookies</li>
+            <li>Disable browser extensions that block notifications</li>
+          </ul>
+        </div>
+
+        <h3>Email Notifications Not Arriving?</h3>
+        <div class="warning-box">
+          <strong>Check These:</strong>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Verify email address in settings</li>
+            <li>Check spam/junk folder</li>
+            <li>Add notifications@notifypro.app to contacts</li>
+            <li>Confirm email settings are saved</li>
+            <li>Test with "Send Test Notification" button</li>
+          </ul>
+        </div>
+
+        <h3>Slack Notifications Not Working?</h3>
+        <div class="warning-box">
+          <strong>Verify:</strong>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Webhook URL is correct and active</li>
+            <li>Slack app has necessary permissions</li>
+            <li>Webhook hasn't been revoked in Slack</li>
+            <li>Check Slack channel settings</li>
+            <li>Test webhook with curl command first</li>
+          </ul>
+        </div>
+
+        <h3>OAuth Errors?</h3>
+        <div class="warning-box">
+          <strong>Try:</strong>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Uninstall and reinstall NotifyPro</li>
+            <li>Clear browser cache</li>
+            <li>Log out and back into GoHighLevel</li>
+            <li>Contact support if issue persists</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="section">
+        <h2>❓ Frequently Asked Questions</h2>
+
+        <h3>How many notifications can I receive?</h3>
+        <p>Unlimited! NotifyPro has no limits on notification volume. However, we do implement rate limiting to prevent abuse.</p>
+
+        <h3>Can I use NotifyPro on multiple locations?</h3>
+        <p>Yes! Each GoHighLevel location requires a separate NotifyPro subscription. Settings are managed per location.</p>
+
+        <h3>What happens during my free trial?</h3>
+        <p>You get full access to all features for 14 days. No credit card required. After the trial, you'll need to subscribe to continue.</p>
+
+        <h3>Can I customize notification sounds?</h3>
+        <p>Browser notification sounds are controlled by your operating system settings. Priority notifications use a different system sound.</p>
+
+        <h3>Does NotifyPro work on mobile?</h3>
+        <p>Browser push notifications work on Android Chrome/Firefox. iOS Safari has limited support. Email and Slack notifications work everywhere.</p>
+
+        <h3>How do I cancel my subscription?</h3>
+        <p>Uninstall NotifyPro from the GoHighLevel Marketplace. Your subscription will automatically cancel.</p>
+      </div>
+
+      <!-- Support -->
+      <div class="section">
+        <h2>💬 Need Help?</h2>
+        <div class="info-box">
+          <p><strong>We're here to help!</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li><strong>In-App Support:</strong> Use the Support tab in NotifyPro settings</li>
+            <li><strong>Email:</strong> support@notifypro.app</li>
+            <li><strong>Response Time:</strong> Usually within 4 hours (24/7)</li>
+            <li><strong>Documentation:</strong> Visit our <a href="/support.html" style="color: #667eea;">support page</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2026 NotifyPro. All rights reserved.</p>
+      <p style="margin-top: 15px;">
+        <a href="/about.html">About</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/support.html">Support</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+

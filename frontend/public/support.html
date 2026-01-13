@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NotifyPro - Support & Help</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f7fa;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 60px 40px;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+
+    .section h2 {
+      font-size: 32px;
+      color: #667eea;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #e2e8f0;
+    }
+
+    .section h3 {
+      font-size: 22px;
+      color: #1F2937;
+      margin: 25px 0 15px 0;
+    }
+
+    .section p {
+      margin-bottom: 15px;
+      color: #4B5563;
+      font-size: 16px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+
+    .contact-card {
+      background: #F9FAFB;
+      padding: 30px;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .contact-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    }
+
+    .contact-card .icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .contact-card h3 {
+      margin: 15px 0 10px 0;
+      font-size: 20px;
+      color: #1F2937;
+    }
+
+    .contact-card p {
+      color: #6B7280;
+      margin-bottom: 10px;
+    }
+
+    .contact-card a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .contact-card a:hover {
+      text-decoration: underline;
+    }
+
+    .faq-item {
+      background: #F9FAFB;
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .faq-item h3 {
+      margin: 0 0 10px 0;
+      color: #667eea;
+      font-size: 20px;
+    }
+
+    .faq-item p {
+      margin: 0;
+      color: #4B5563;
+    }
+
+    .info-box {
+      background: #EFF6FF;
+      border-left: 4px solid #3B82F6;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .info-box strong {
+      color: #1E40AF;
+    }
+
+    .success-box {
+      background: #D1FAE5;
+      border-left: 4px solid #10B981;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .success-box strong {
+      color: #065F46;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin: 10px 5px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .resource-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .resource-list li {
+      padding: 15px 0;
+      padding-left: 40px;
+      position: relative;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .resource-list li::before {
+      content: '📚';
+      position: absolute;
+      left: 0;
+      font-size: 24px;
+    }
+
+    .resource-list a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .resource-list a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      background: #1F2937;
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 32px; }
+      .content { padding: 40px 20px; }
+      .section h2 { font-size: 26px; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💬 Support & Help</h1>
+      <p>We're here to help you 24/7</p>
+    </div>
+
+    <div class="content">
+      <!-- Contact Options -->
+      <div class="section">
+        <h2>📞 Get In Touch</h2>
+        <p>Choose the best way to reach us:</p>
+
+        <div class="contact-grid">
+          <div class="contact-card">
+            <div class="icon">💬</div>
+            <h3>In-App Support</h3>
+            <p>Fastest way to get help</p>
+            <p><strong>Use the Support tab in NotifyPro settings</strong></p>
+            <p style="margin-top: 10px; color: #10B981; font-weight: 600;">⚡ Average response: 4 hours</p>
+          </div>
+
+          <div class="contact-card">
+            <div class="icon">📧</div>
+            <h3>Email Support</h3>
+            <p>Send us a detailed message</p>
+            <p><a href="mailto:support@notifypro.app">support@notifypro.app</a></p>
+            <p style="margin-top: 10px; color: #10B981; font-weight: 600;">⚡ Response within 24 hours</p>
+          </div>
+
+          <div class="contact-card">
+            <div class="icon">🐛</div>
+            <h3>Bug Reports</h3>
+            <p>Found a bug? Let us know</p>
+            <p><a href="mailto:bugs@notifypro.app">bugs@notifypro.app</a></p>
+            <p style="margin-top: 10px; color: #F59E0B; font-weight: 600;">🔧 Priority handling</p>
+          </div>
+        </div>
+
+        <div class="success-box">
+          <strong>💡 Pro Tip:</strong> Include your Location ID and a screenshot when reporting issues for faster resolution!
+        </div>
+      </div>
+
+      <!-- Popular Questions -->
+      <div class="section">
+        <h2>❓ Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+          <h3>Why am I not receiving notifications?</h3>
+          <p><strong>Common solutions:</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Check browser notification permissions (Settings → Notifications)</li>
+            <li>Verify your email address in NotifyPro settings</li>
+            <li>Make sure business hours are configured correctly</li>
+            <li>Disable Do Not Disturb mode on your device</li>
+            <li>Test with the "Send Test Notification" button</li>
+          </ul>
+        </div>
+
+        <div class="faq-item">
+          <h3>How do I set up Slack notifications?</h3>
+          <p><strong>Follow these steps:</strong></p>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Go to <code>https://api.slack.com/apps</code></li>
+            <li>Create a new app or select an existing one</li>
+            <li>Enable "Incoming Webhooks"</li>
+            <li>Add webhook to your workspace</li>
+            <li>Copy the webhook URL and paste it in NotifyPro settings</li>
+          </ol>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I customize which conversations trigger notifications?</h3>
+          <p>Yes! NotifyPro offers several filtering options:</p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li><strong>Business Hours:</strong> Only receive notifications during work hours</li>
+            <li><strong>Priority Keywords:</strong> Get special alerts for important messages</li>
+            <li><strong>New Conversations Only:</strong> Only notify for new chats</li>
+            <li><strong>First Message Only:</strong> Just the first message in a thread</li>
+          </ul>
+        </div>
+
+        <div class="faq-item">
+          <h3>How much does NotifyPro cost?</h3>
+          <p><strong>Pricing:</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>14-day free trial (no credit card required)</li>
+            <li>$29/month per location after trial</li>
+            <li>Unlimited notifications</li>
+            <li>Cancel anytime</li>
+          </ul>
+        </div>
+
+        <div class="faq-item">
+          <h3>Is my data secure?</h3>
+          <p>Absolutely! We take security seriously:</p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>All data encrypted in transit and at rest</li>
+            <li>OAuth 2.0 authentication</li>
+            <li>No data shared with third parties</li>
+            <li>Tokens automatically deleted on uninstall</li>
+            <li>See our <a href="/privacy.html" style="color: #667eea;">Privacy Policy</a> for details</li>
+          </ul>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I use NotifyPro on multiple locations?</h3>
+          <p>Yes! Each GoHighLevel location requires a separate subscription. Settings are managed independently for each location.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What browsers are supported?</h3>
+          <p><strong>Browser push notifications work on:</strong></p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Google Chrome (desktop & Android)</li>
+            <li>Firefox (desktop & Android)</li>
+            <li>Microsoft Edge</li>
+            <li>Safari (macOS 13+ only)</li>
+          </ul>
+          <p style="margin-top: 10px;"><em>Note: Email and Slack notifications work on all browsers and devices.</em></p>
+        </div>
+      </div>
+
+      <!-- Documentation -->
+      <div class="section">
+        <h2>📚 Documentation & Resources</h2>
+        <ul class="resource-list">
+          <li>
+            <a href="/setup.html">Setup Guide</a>
+            <p style="color: #6B7280; margin: 5px 0 0 0;">Complete installation and configuration instructions</p>
+          </li>
+          <li>
+            <a href="/privacy.html">Privacy Policy</a>
+            <p style="color: #6B7280; margin: 5px 0 0 0;">Learn how we protect your data</p>
+          </li>
+          <li>
+            <a href="/terms.html">Terms of Service</a>
+            <p style="color: #6B7280; margin: 5px 0 0 0;">Usage terms and conditions</p>
+          </li>
+          <li>
+            <a href="/about.html">About NotifyPro</a>
+            <p style="color: #6B7280; margin: 5px 0 0 0;">Features and pricing information</p>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Troubleshooting -->
+      <div class="section">
+        <h2>🔧 Quick Troubleshooting</h2>
+
+        <h3>Browser Notifications Not Working?</h3>
+        <div class="info-box">
+          <strong>Try these steps:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Check browser settings: <code>chrome://settings/content/notifications</code></li>
+            <li>Ensure NotifyPro is allowed in browser permissions</li>
+            <li>Disable browser Do Not Disturb mode</li>
+            <li>Re-enable push notifications in NotifyPro settings</li>
+            <li>Clear browser cache and try again</li>
+          </ol>
+        </div>
+
+        <h3>Email Notifications Missing?</h3>
+        <div class="info-box">
+          <strong>Check:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Verify your email address in settings</li>
+            <li>Check spam/junk folder</li>
+            <li>Add <code>notifications@notifypro.app</code> to contacts</li>
+            <li>Make sure email notifications are enabled</li>
+            <li>Test with "Send Test Notification"</li>
+          </ol>
+        </div>
+
+        <h3>Slack Not Receiving Notifications?</h3>
+        <div class="info-box">
+          <strong>Verify:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Webhook URL is correct</li>
+            <li>Webhook is active in Slack (not revoked)</li>
+            <li>Slack app has proper permissions</li>
+            <li>Test webhook directly with curl</li>
+            <li>Check Slack channel settings</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Feature Requests -->
+      <div class="section">
+        <h2>💡 Feature Requests</h2>
+        <p>Have an idea to improve NotifyPro? We'd love to hear it!</p>
+        <div class="success-box">
+          <strong>How to submit a feature request:</strong>
+          <ol style="margin-left: 20px; margin-top: 10px;">
+            <li>Use the Support tab in NotifyPro settings</li>
+            <li>Select "Feature Request" as the category</li>
+            <li>Describe your idea in detail</li>
+            <li>We review all requests and implement popular ones</li>
+          </ol>
+          <p style="margin-top: 15px;"><strong>⚡ Many features have been added based on user requests!</strong></p>
+        </div>
+      </div>
+
+      <!-- Contact CTA -->
+      <div class="section" style="text-align: center;">
+        <h2>Still Need Help?</h2>
+        <p>Our support team is available 24/7 to assist you</p>
+        <div style="margin-top: 30px;">
+          <a href="mailto:support@notifypro.app" class="btn">Email Support</a>
+          <a href="/setup.html" class="btn">View Setup Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2026 NotifyPro. All rights reserved.</p>
+      <p style="margin-top: 15px;">
+        <a href="/about.html">About</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/setup.html">Setup</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+
