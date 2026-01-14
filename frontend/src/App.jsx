@@ -464,52 +464,6 @@ function App() {
           )}
         </div>
 
-        {/* Email */}
-        <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f0f0f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <div>
-              <h3 style={{ margin: 0 }}>📧 Email Notifications</h3>
-              <p style={{ color: '#666', fontSize: '14px', margin: '5px 0' }}>
-                Receive notifications via email
-              </p>
-            </div>
-            <Switch
-              checked={preferences.channels.email.enabled}
-              onChange={(checked) => {
-                setPreferences(prev => ({
-                  ...prev,
-                  channels: {
-                    ...prev.channels,
-                    email: { ...prev.channels.email, enabled: checked }
-                  }
-                }));
-              }}
-            />
-          </div>
-          {preferences.channels.email.enabled && (
-            <div>
-              <Input
-                type="email"
-                placeholder="your@email.com"
-                value={preferences.channels.email.address || ''}
-                onChange={(e) => {
-                  setPreferences(prev => ({
-                    ...prev,
-                    channels: {
-                      ...prev.channels,
-                      email: { ...prev.channels.email, address: e.target.value }
-                    }
-                  }));
-                }}
-                style={{ marginTop: '10px' }}
-              />
-              <Button size="small" style={{ marginTop: '10px' }} onClick={() => sendTestNotification('email')}>
-                Send Test Email
-              </Button>
-            </div>
-          )}
-        </div>
-
         {/* Slack */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -785,7 +739,7 @@ function App() {
         description={
           <div>
             <p>• When a contact sends you a message in GHL, NotifyPro instantly notifies you</p>
-            <p>• Notifications are sent to all enabled channels (browser, email, slack)</p>
+            <p>• Notifications are sent to all enabled channels (browser push, slack)</p>
             <p>• Business hours filter prevents notifications outside working hours</p>
             <p>• Priority keywords ensure important messages always get through</p>
           </div>

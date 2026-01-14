@@ -72,7 +72,6 @@ export default function SettingsTab() {
 
   // Check if any notifications are enabled
   const hasNotificationsEnabled = preferences.channels.push.enabled || 
-                                   preferences.channels.email.enabled || 
                                    preferences.channels.slack.enabled;
 
   return (
@@ -147,19 +146,6 @@ export default function SettingsTab() {
             </div>
             <Tag color={preferences.channels.push.enabled ? 'success' : 'default'}>
               {preferences.channels.push.enabled ? 'Enabled' : 'Disabled'}
-            </Tag>
-          </div>
-
-          {/* Email */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <strong>📧 Email Notifications</strong>
-              <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0' }}>
-                {preferences.channels.email.address || 'Not configured'}
-              </p>
-            </div>
-            <Tag color={preferences.channels.email.enabled ? 'success' : 'default'}>
-              {preferences.channels.email.enabled ? 'Enabled' : 'Disabled'}
             </Tag>
           </div>
 
