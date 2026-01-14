@@ -70,8 +70,47 @@ export default function SettingsTab() {
     );
   }
 
+  // Check if any notifications are enabled
+  const hasNotificationsEnabled = preferences.channels.push.enabled || 
+                                   preferences.channels.email.enabled || 
+                                   preferences.channels.slack.enabled;
+
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      {/* Quick Setup Banner (if no notifications enabled) */}
+      {!hasNotificationsEnabled && (
+        <Card style={{ 
+          marginBottom: '24px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          border: 'none'
+        }}>
+          <div style={{ textAlign: 'center', color: 'white' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔔</div>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '12px', color: 'white' }}>
+              Enable Push Notifications
+            </h2>
+            <p style={{ fontSize: '16px', marginBottom: '24px', opacity: 0.95 }}>
+              Get instant browser notifications when new messages arrive in GoHighLevel
+            </p>
+            <Button 
+              type="default"
+              size="large"
+              icon={<RocketOutlined />}
+              onClick={handleOpenSettings}
+              style={{
+                height: '48px',
+                fontSize: '16px',
+                fontWeight: '600',
+                background: 'white',
+                borderColor: 'white'
+              }}
+            >
+              Setup Notifications Now
+            </Button>
+          </div>
+        </Card>
+      )}
+
       {/* Header with Edit Button */}
       <div style={{ 
         display: 'flex', 
@@ -80,7 +119,7 @@ export default function SettingsTab() {
         marginBottom: '24px' 
       }}>
         <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-          ⚙️ Current Settings
+          {hasNotificationsEnabled ? '⚙️ Your Notification Settings' : '⚙️ Notification Settings'}
         </h2>
         <Button 
           type="primary" 
@@ -88,17 +127,9 @@ export default function SettingsTab() {
           size="large"
           onClick={handleOpenSettings}
         >
-          Edit Settings
+          {hasNotificationsEnabled ? 'Edit Settings' : 'Configure Now'}
         </Button>
       </div>
-
-      <Alert
-        type="info"
-        message="Read-Only Preview"
-        description="This shows your current notification settings. Click 'Edit Settings' to modify them in a new window."
-        style={{ marginBottom: '20px' }}
-        showIcon
-      />
 
       {/* Notification Channels */}
       <Card 

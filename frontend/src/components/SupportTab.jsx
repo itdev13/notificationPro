@@ -1,8 +1,10 @@
 import React from 'react';
+import { useGHLContext } from '../hooks/useGHLContext';
 import { Card, Button } from 'antd';
 import { MailOutlined, QuestionCircleOutlined, BookOutlined } from '@ant-design/icons';
 
 export default function SupportTab() {
+  const { context } = useGHLContext();
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>
