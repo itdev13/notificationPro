@@ -48,10 +48,6 @@ class PushService {
         return { sent: 0, failed: 0 };
       }
 
-      // Get push preferences for position
-      const preferences = await NotificationPreference.findByLocation(locationId);
-      const position = preferences?.channels?.push?.position || 'top-right';
-
       // Prepare notification payload
       const notificationPayload = JSON.stringify({
         title: payload.title || 'New Message',
@@ -61,10 +57,9 @@ class PushService {
         data: {
           url: payload.url || '',
           conversationId: payload.conversationId,
-          contactId: payload.contactId,
-          position: position // Include position in payload
+          contactId: payload.contactId
         },
-        tag: 'conversation-notification ' + new Date().getTime(),
+        tag: 'conversation-notification-' + Date.now(),
         requireInteraction: payload.isPriority || false
       });
 

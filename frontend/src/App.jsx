@@ -449,35 +449,15 @@ function App() {
             />
           )}
           {preferences.channels.push.enabled && (
-            <div style={{ marginTop: '15px', padding: '15px', background: '#f9f9f9', borderRadius: '8px' }}>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Notification Position:</label>
-                <Select
-                  style={{ width: '100%' }}
-                  value={preferences.channels.push.position || 'top-right'}
-                  onChange={(value) => {
-                    setPreferences(prev => ({
-                      ...prev,
-                      channels: {
-                        ...prev.channels,
-                        push: {
-                          ...prev.channels.push,
-                          position: value
-                        }
-                      }
-                    }));
-                  }}
-                >
-                  <Option value="top-right">Top Right</Option>
-                  <Option value="top-left">Top Left</Option>
-                  <Option value="bottom-right">Bottom Right</Option>
-                  <Option value="bottom-left">Bottom Left</Option>
-                </Select>
-                <p style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
-                  Note: Position is controlled by your browser/OS settings. This preference is stored for future use.
-                </p>
-              </div>
-              <Button size="small" onClick={() => sendTestNotification('push')}>
+            <div style={{ marginTop: '15px', padding: '15px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #91d5ff' }}>
+              <p style={{ fontSize: '14px', color: '#0050b3', marginBottom: '12px' }}>
+                ✅ Browser push notifications are enabled! Test it below:
+              </p>
+              <Button 
+                type="primary"
+                size="small" 
+                onClick={() => sendTestNotification('push')}
+              >
                 Send Test Notification
               </Button>
             </div>
