@@ -18,7 +18,7 @@ const notificationLogSchema = new mongoose.Schema({
   // Notification details
   channel: {
     type: String,
-    enum: ['push', 'email', 'slack'],
+    enum: ['push', 'email', 'slack', 'none'], // 'none' for filtered notifications
     required: true
   },
   
