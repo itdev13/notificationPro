@@ -68,6 +68,8 @@ class PushService {
         requireInteraction: payload.isPriority || false
       });
 
+      console.log('notificationPayload', notificationPayload);
+
       // Send to all subscriptions
       const results = await Promise.allSettled(
         subscriptions.map(sub => this.sendToSubscription(sub, notificationPayload))
