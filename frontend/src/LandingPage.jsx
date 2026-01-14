@@ -55,43 +55,65 @@ function LandingPage() {
       <Header />
       
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
-        {/* Tab Navigation */}
+        {/* Tab Navigation - Modern Card Design */}
         <div style={{ 
-          background: 'white', 
-          borderRadius: '12px', 
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          marginBottom: '24px',
-          overflow: 'hidden'
+          display: 'flex',
+          gap: '16px',
+          marginBottom: '24px'
         }}>
-          <div style={{ borderBottom: '1px solid #f0f0f0' }}>
-            <div style={{ display: 'flex' }}>
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '16px 32px',
-                    border: 'none',
-                    borderBottom: activeTab === tab.id ? '3px solid #667eea' : '3px solid transparent',
-                    background: activeTab === tab.id ? 'rgba(102, 126, 234, 0.05)' : 'transparent',
-                    color: activeTab === tab.id ? '#667eea' : '#666',
-                    fontSize: '16px',
-                    fontWeight: activeTab === tab.id ? '600' : '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s'
-                  }}
-                >
-                  <span style={{ fontSize: '20px' }}>{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '20px',
+                border: activeTab === tab.id ? '2px solid #667eea' : '2px solid #e0e0e0',
+                borderRadius: '16px',
+                background: activeTab === tab.id 
+                  ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)'
+                  : 'white',
+                color: activeTab === tab.id ? '#667eea' : '#666',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: activeTab === tab.id 
+                  ? '0 4px 12px rgba(102, 126, 234, 0.15)'
+                  : '0 2px 8px rgba(0,0,0,0.08)',
+                transform: activeTab === tab.id ? 'translateY(-2px)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.borderColor = '#667eea';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.borderColor = '#e0e0e0';
+                  e.currentTarget.style.transform = 'none';
+                }
+              }}
+            >
+              <span style={{ fontSize: '32px' }}>{tab.icon}</span>
+              <span>{tab.label}</span>
+              {activeTab === tab.id && (
+                <div style={{
+                  width: '40px',
+                  height: '4px',
+                  background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: '2px',
+                  marginTop: '4px'
+                }}></div>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content */}
