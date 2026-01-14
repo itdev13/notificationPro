@@ -644,13 +644,51 @@ function App() {
                       }
                     }));
                   }}
+                  showSearch
+                  placeholder="Select timezone"
+                  optionFilterProp="children"
                 >
-                  <Option value="America/New_York">Eastern Time (ET)</Option>
-                  <Option value="America/Chicago">Central Time (CT)</Option>
-                  <Option value="America/Denver">Mountain Time (MT)</Option>
-                  <Option value="America/Los_Angeles">Pacific Time (PT)</Option>
-                  <Option value="Europe/London">London (GMT)</Option>
-                  <Option value="Asia/Dubai">Dubai (GST)</Option>
+                  <Option value="America/New_York">US Eastern Time (ET) - New York</Option>
+                  <Option value="America/Chicago">US Central Time (CT) - Chicago</Option>
+                  <Option value="America/Denver">US Mountain Time (MT) - Denver</Option>
+                  <Option value="America/Los_Angeles">US Pacific Time (PT) - Los Angeles</Option>
+                  <Option value="America/Phoenix">US Arizona - Phoenix (No DST)</Option>
+                  <Option value="America/Anchorage">US Alaska Time (AKT)</Option>
+                  <Option value="Pacific/Honolulu">US Hawaii Time (HST)</Option>
+                  <Option value="America/Toronto">Canada Eastern - Toronto</Option>
+                  <Option value="America/Vancouver">Canada Pacific - Vancouver</Option>
+                  <Option value="Europe/London">UK - London (GMT/BST)</Option>
+                  <Option value="Europe/Paris">France - Paris (CET)</Option>
+                  <Option value="Europe/Berlin">Germany - Berlin (CET)</Option>
+                  <Option value="Europe/Madrid">Spain - Madrid (CET)</Option>
+                  <Option value="Europe/Rome">Italy - Rome (CET)</Option>
+                  <Option value="Europe/Amsterdam">Netherlands - Amsterdam (CET)</Option>
+                  <Option value="Europe/Brussels">Belgium - Brussels (CET)</Option>
+                  <Option value="Europe/Zurich">Switzerland - Zurich (CET)</Option>
+                  <Option value="Europe/Stockholm">Sweden - Stockholm (CET)</Option>
+                  <Option value="Europe/Dublin">Ireland - Dublin (GMT/IST)</Option>
+                  <Option value="Asia/Dubai">UAE - Dubai (GST)</Option>
+                  <Option value="Asia/Kolkata">India - Kolkata (IST)</Option>
+                  <Option value="Asia/Singapore">Singapore (SGT)</Option>
+                  <Option value="Asia/Hong_Kong">Hong Kong (HKT)</Option>
+                  <Option value="Asia/Tokyo">Japan - Tokyo (JST)</Option>
+                  <Option value="Asia/Seoul">South Korea - Seoul (KST)</Option>
+                  <Option value="Asia/Shanghai">China - Shanghai (CST)</Option>
+                  <Option value="Asia/Bangkok">Thailand - Bangkok (ICT)</Option>
+                  <Option value="Asia/Jakarta">Indonesia - Jakarta (WIB)</Option>
+                  <Option value="Asia/Manila">Philippines - Manila (PHT)</Option>
+                  <Option value="Australia/Sydney">Australia - Sydney (AEDT)</Option>
+                  <Option value="Australia/Melbourne">Australia - Melbourne (AEDT)</Option>
+                  <Option value="Australia/Brisbane">Australia - Brisbane (AEST)</Option>
+                  <Option value="Australia/Perth">Australia - Perth (AWST)</Option>
+                  <Option value="Pacific/Auckland">New Zealand - Auckland (NZDT)</Option>
+                  <Option value="America/Sao_Paulo">Brazil - São Paulo (BRT)</Option>
+                  <Option value="America/Mexico_City">Mexico - Mexico City (CST)</Option>
+                  <Option value="America/Argentina/Buenos_Aires">Argentina - Buenos Aires (ART)</Option>
+                  <Option value="Africa/Johannesburg">South Africa - Johannesburg (SAST)</Option>
+                  <Option value="Africa/Lagos">Nigeria - Lagos (WAT)</Option>
+                  <Option value="Africa/Cairo">Egypt - Cairo (EET)</Option>
+                  <Option value="Africa/Nairobi">Kenya - Nairobi (EAT)</Option>
                 </Select>
               </div>
               

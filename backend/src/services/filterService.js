@@ -34,51 +34,94 @@ class FilterService {
       };
     }
 
-    // Check business hours
+    // Check if message contains priority keywords FIRST
+    const messageText = message.text || message.body || '';
+    const isPriority = this.checkPriorityKeywords(
+      messageText,
+      preferences.filters.priorityKeywords
+    );
+
+    // If priority keyword found, ALWAYS notify (bypass business hours)
+    if (isPriority) {
+      logger.info('Priority keyword detected - bypassing business hours filter');
+      return {
+        notify: true,
+        isPriority: true,
+        reason: 'priority_keyword'
+      };
+    }
+
+    // Check business hours (only if not priority)
     if (preferences.filters.businessHoursOnly) {
       if (!this.isBusinessHours(preferences.filters.businessHours)) {
         logger.info('Notification filtered: outside business hours');
         return {
           notify: false,
+          isPriority: false,
           reason: 'business_hours'
         };
       }
     }
 
-    // Check if message contains priority keywords
-    const isPriority = this.checkPriorityKeywords(
-      message.text || message.body || '',
-      preferences.filters.priorityKeywords
-    );
-
+    // All checks passed
     return {
       notify: true,
-      isPriority
+      isPriority: false,
+      reason: 'business_hours_ok'
     };
   }
 
   /**
    * Check if current time is within business hours
+   * Uses moment-timezone for accurate timezone handling including DST
    */
   isBusinessHours(businessHours) {
     try {
+      // Get current time in the specified timezone
       const now = moment().tz(businessHours.timezone);
       const currentDay = now.format('dddd').toLowerCase();
       const currentTime = now.format('HH:mm');
 
+      // Log for debugging
+      logger.debug(`Business hours check:`, {
+        timezone: businessHours.timezone,
+        currentTime: now.format('YYYY-MM-DD HH:mm:ss Z'),
+        day: currentDay,
+        businessDays: businessHours.days,
+        businessHours: `${businessHours.start} - ${businessHours.end}`
+      });
+
       // Check if today is a business day
-      if (!businessHours.days.includes(currentDay)) {
+      if (!businessHours.days || !businessHours.days.includes(currentDay)) {
+        logger.info(`Not a business day: ${currentDay}`);
         return false;
       }
 
-      // Check if current time is within business hours
-      const start = businessHours.start;
-      const end = businessHours.end;
+      // Parse times for accurate comparison
+      const start = businessHours.start; // "09:00"
+      const end = businessHours.end;     // "17:00"
 
-      return currentTime >= start && currentTime <= end;
+      // Handle edge case: business hours crossing midnight (e.g., 22:00 - 02:00)
+      if (end < start) {
+        // Split into two ranges: start-23:59 and 00:00-end
+        const isAfterStart = currentTime >= start;
+        const isBeforeEnd = currentTime <= end;
+        return isAfterStart || isBeforeEnd;
+      }
+
+      // Normal case: business hours within same day
+      const isWithinHours = currentTime >= start && currentTime <= end;
+      
+      if (!isWithinHours) {
+        logger.info(`Outside business hours: ${currentTime} (hours: ${start}-${end})`);
+      }
+
+      return isWithinHours;
+
     } catch (error) {
       logger.error('Error checking business hours:', error);
-      return true; // Default to allowing notification on error
+      // Default to allowing notification on error (safer than blocking)
+      return true;
     }
   }
 
