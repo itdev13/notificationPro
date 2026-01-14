@@ -177,22 +177,34 @@ export default function SettingsTab() {
               {preferences.filters.businessHoursOnly ? 'Enabled' : 'Disabled'}
             </Tag>
           </div>
-          {preferences.filters.businessHoursOnly && (
+           {preferences.filters.businessHoursOnly && (
             <div style={{ 
-              padding: '12px', 
-              background: '#f9f9f9', 
-              borderRadius: '6px', 
+              padding: '16px', 
+              background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+              borderRadius: '8px', 
               fontSize: '14px', 
-              color: '#666' 
+              color: '#0369a1',
+              border: '1px solid #bae6fd'
             }}>
-              <p style={{ margin: '4px 0' }}>
-                <strong>Hours:</strong> {preferences.filters.businessHours.start} - {preferences.filters.businessHours.end}
+              <p style={{ margin: '8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>⏰</span>
+                <strong>Hours:</strong> 
+                <span style={{ fontSize: '16px', fontWeight: '600' }}>
+                  {preferences.filters.businessHours.start} → {preferences.filters.businessHours.end}
+                </span>
               </p>
-              <p style={{ margin: '4px 0' }}>
+              <p style={{ margin: '8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>🌍</span>
                 <strong>Timezone:</strong> {preferences.filters.businessHours.timezone}
               </p>
-              <p style={{ margin: '4px 0' }}>
-                <strong>Days:</strong> {(preferences.filters.businessHours.days || []).join(', ')}
+              <p style={{ margin: '8px 0', display: 'flex', alignItems: 'start', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>📅</span>
+                <span>
+                  <strong>Days:</strong><br/>
+                  {(preferences.filters.businessHours.days || []).map(day => 
+                    day.charAt(0).toUpperCase() + day.slice(1)
+                  ).join(', ')}
+                </span>
               </p>
             </div>
           )}

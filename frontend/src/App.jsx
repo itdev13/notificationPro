@@ -538,46 +538,84 @@ function App() {
           {preferences.filters.businessHoursOnly && (
             <div style={{ marginTop: '15px', padding: '15px', background: '#f9f9f9', borderRadius: '8px' }}>
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Business Hours (Time Range):</label>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <Input
-                    type="time"
-                    value={preferences.filters.businessHours.start || '09:00'}
-                    onChange={(e) => {
-                      setPreferences(prev => ({
-                        ...prev,
-                        filters: {
-                          ...prev.filters,
-                          businessHours: {
-                            ...prev.filters.businessHours,
-                            start: e.target.value
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                  ⏰ Business Hours (24-Hour Format):
+                </label>
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '12px', 
+                  alignItems: 'center',
+                  background: '#fafafa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '6px' }}>
+                      Start Time
+                    </label>
+                    <Input
+                      type="time"
+                      value={preferences.filters.businessHours.start || '09:00'}
+                      onChange={(e) => {
+                        setPreferences(prev => ({
+                          ...prev,
+                          filters: {
+                            ...prev.filters,
+                            businessHours: {
+                              ...prev.filters.businessHours,
+                              start: e.target.value
+                            }
                           }
-                        }
-                      }));
-                    }}
-                    style={{ flex: 1 }}
-                  />
-                  <span style={{ alignSelf: 'center', fontWeight: '500' }}>to</span>
-                  <Input
-                    type="time"
-                    value={preferences.filters.businessHours.end || '17:00'}
-                    onChange={(e) => {
-                      setPreferences(prev => ({
-                        ...prev,
-                        filters: {
-                          ...prev.filters,
-                          businessHours: {
-                            ...prev.filters.businessHours,
-                            end: e.target.value
+                        }));
+                      }}
+                      size="large"
+                      style={{ 
+                        fontSize: '16px',
+                        fontWeight: '600'
+                      }}
+                    />
+                  </div>
+                  
+                  <div style={{ 
+                    alignSelf: 'flex-end',
+                    fontWeight: 'bold', 
+                    fontSize: '24px',
+                    color: '#667eea',
+                    paddingBottom: '8px'
+                  }}>
+                    →
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '6px' }}>
+                      End Time
+                    </label>
+                    <Input
+                      type="time"
+                      value={preferences.filters.businessHours.end || '17:00'}
+                      onChange={(e) => {
+                        setPreferences(prev => ({
+                          ...prev,
+                          filters: {
+                            ...prev.filters,
+                            businessHours: {
+                              ...prev.filters.businessHours,
+                              end: e.target.value
+                            }
                           }
-                        }
-                      }));
-                    }}
-                    style={{ flex: 1 }}
-                  />
+                        }));
+                      }}
+                      size="large"
+                      style={{ 
+                        fontSize: '16px',
+                        fontWeight: '600'
+                      }}
+                    />
+                  </div>
                 </div>
-                <p style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
-                  Set the time range for business hours (e.g., 9:00 AM to 5:00 PM)
+                <p style={{ fontSize: '12px', color: '#999', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  💡 <span>Use 24-hour format: 09:00 to 17:00 (9 AM to 5 PM) or 00:00 to 23:59 (midnight to 11:59 PM)</span>
                 </p>
               </div>
               
