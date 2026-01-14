@@ -212,7 +212,7 @@ router.post('/validate-token', async (req, res) => {
 });
 
 /**
- * Get location details (name, email, etc.)
+ * Get location details from OAuth token (faster than calling GHL API)
  */
 router.get('/location/:locationId', async (req, res) => {
   try {
@@ -225,12 +225,26 @@ router.get('/location/:locationId', async (req, res) => {
       });
     }
 
-    const ghlService = require('../services/ghlService');
-    const locationDetails = await ghlService.getLocationDetails(locationId);
+    const OAuthToken = require('../models/OAuthToken');
+    
+    // Get location data from OAuth token (already stored during OAuth)
+    const token = await OAuthToken.findActiveToken(locationId);
+
+    if (!token) {
+      return res.status(404).json({
+        success: false,
+        error: 'Location not found or app not installed'
+      });
+    }
 
     res.json({
       success: true,
-      location: locationDetails
+      location: {
+        locationName: token.locationName,
+        locationEmail: token.locationEmail,
+        locationPhone: token.locationPhone,
+        locationTimezone: token.locationTimezone
+      }
     });
 
   } catch (error) {
