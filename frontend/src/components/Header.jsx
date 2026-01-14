@@ -1,10 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGHLContext } from '../hooks/useGHLContext';
 import { APP_UPDATES, FEATURE_REQUEST_CTA, BADGE_CONFIGS } from '../constants/updates';
+import { getLocationDetailsUrl } from '../constants/api';
+import axios from 'axios';
 
 export default function Header() {
   const { context } = useGHLContext();
   const [showUpdates, setShowUpdates] = useState(false);
+  const [location, setLocation] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+  // Load location details when context is available
+  useEffect(() => {
+    if (context?.locationId) {
+      loadLocationDetails();
+    }
+  }, [context]);
+
+  const loadLocationDetails = async () => {
+    try {
+      setLoadingLocation(true);
+      const response = await axios.get(getLocationDetailsUrl(context.locationId));
+      if (response.data.success && response.data.location) {
+        setLocation(response.data.location);
+      }
+    } catch (error) {
+      console.error('Failed to load location details:', error);
+      // Non-critical - just show fallback
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
 
   return (
     <header style={{
@@ -201,7 +227,10 @@ export default function Header() {
                   fontSize: '18px',
                   fontWeight: 'bold'
                 }}>
-                  {context.userName || context.email || 'Account'}
+                  {loadingLocation 
+                    ? 'Loading...' 
+                    : location?.locationName || context.userName || context.email || 'Account'
+                  }
                 </div>
               </div>
             )}

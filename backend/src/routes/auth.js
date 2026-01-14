@@ -211,5 +211,37 @@ router.post('/validate-token', async (req, res) => {
   }
 });
 
+/**
+ * Get location details (name, email, etc.)
+ */
+router.get('/location/:locationId', async (req, res) => {
+  try {
+    const { locationId } = req.params;
+
+    if (!locationId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Location ID is required'
+      });
+    }
+
+    const ghlService = require('../services/ghlService');
+    const locationDetails = await ghlService.getLocationDetails(locationId);
+
+    res.json({
+      success: true,
+      location: locationDetails
+    });
+
+  } catch (error) {
+    logError('Failed to get location details', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch location details',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router;
 

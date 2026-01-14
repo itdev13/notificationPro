@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
     DECRYPT_USER_DATA: '/api/auth/decrypt-user-data',
     GENERATE_TOKEN: '/api/auth/generate-token',
     VALIDATE_TOKEN: '/api/auth/validate-token',
+    GET_LOCATION: '/api/auth/location',
   },
   
   // OAuth
@@ -90,4 +91,9 @@ export const getGenerateTokenUrl = () => buildApiUrl(API_ENDPOINTS.AUTH.GENERATE
  * Get full URL for validate token endpoint
  */
 export const getValidateTokenUrl = () => buildApiUrl(API_ENDPOINTS.AUTH.VALIDATE_TOKEN);
+
+/**
+ * Get full URL for location details endpoint
+ */
+export const getLocationDetailsUrl = (locationId) => buildApiUrl(`${API_ENDPOINTS.AUTH.GET_LOCATION}/${locationId}`);
 
