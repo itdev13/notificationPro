@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { useGHLContext } from './hooks/useGHLContext';
 import { Card, Button, message, Alert, Spin } from 'antd';
-import { BellOutlined, RocketOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { BellOutlined, RocketOutlined, CheckCircleOutlined, SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { getGenerateTokenUrl } from './constants/api';
+import Header from './components/Header';
+import SettingsTab from './components/SettingsTab';
+import SupportTab from './components/SupportTab';
 
 function LandingPage() {
   const { context, loading: contextLoading, error: contextError } = useGHLContext();
   const [generating, setGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('home'); // home, settings, support
 
   const handleOpenSettings = async () => {
     try {
@@ -82,23 +86,73 @@ function LandingPage() {
     );
   }
 
+  // Tabs definition
+  const tabs = [
+    { id: 'home', label: 'Home', icon: '🏠' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'support', label: 'Support', icon: '🆘' }
+  ];
+
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '40px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <Card 
-        style={{ 
-          maxWidth: '600px',
-          width: '100%',
-          borderRadius: '16px',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
-        }}
-      >
+    <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+      <Header />
+      
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
+        {/* Tab Navigation */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          marginBottom: '24px',
+          overflow: 'hidden'
+        }}>
+          <div style={{ borderBottom: '1px solid #f0f0f0' }}>
+            <div style={{ display: 'flex' }}>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '16px 32px',
+                    border: 'none',
+                    borderBottom: activeTab === tab.id ? '3px solid #667eea' : '3px solid transparent',
+                    background: activeTab === tab.id ? 'rgba(102, 126, 234, 0.05)' : 'transparent',
+                    color: activeTab === tab.id ? '#667eea' : '#666',
+                    fontSize: '16px',
+                    fontWeight: activeTab === tab.id ? '600' : '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                >
+                  <span style={{ fontSize: '20px' }}>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          padding: '32px'
+        }}>
+          {activeTab === 'home' && (
+            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+              <Card 
+                style={{ 
+                  borderRadius: '16px',
+                  border: 'none',
+                  boxShadow: 'none'
+                }}
+              >
         <div style={{ textAlign: 'center' }}>
           {/* Icon */}
           <div style={{ 
@@ -201,7 +255,14 @@ function LandingPage() {
             <BellOutlined /> Your notification preferences are stored securely and can be changed anytime.
           </p>
         </div>
-      </Card>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'settings' && <SettingsTab />}
+          {activeTab === 'support' && <SupportTab />}
+        </div>
+      </div>
     </div>
   );
 }
