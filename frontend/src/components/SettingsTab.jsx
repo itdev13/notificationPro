@@ -4,6 +4,7 @@ import { Card, Tag, Alert, Button, Spin } from 'antd';
 import { BellOutlined, MailOutlined, SlackOutlined, ClockCircleOutlined, RocketOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { getSettingsUrl, getGenerateTokenUrl } from '../constants/api';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 export default function SettingsTab() {
   const { context } = useGHLContext();
