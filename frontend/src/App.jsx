@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Switch, Input, TimePicker, Select, Tag, Button, message, Divider, Alert, Spin } from 'antd';
-import { BellOutlined, MailOutlined, SlackOutlined, ClockCircleOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { BellOutlined, MailOutlined, SlackOutlined, ClockCircleOutlined, ThunderboltOutlined, WarningOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { 
@@ -8,7 +8,8 @@ import {
   getVapidPublicKeyUrl, 
   getSubscribeUrl, 
   getTestNotificationUrl,
-  getValidateTokenUrl
+  getValidateTokenUrl,
+  getSubscriptionStatusUrl
 } from './constants/api';
 
 const { TextArea } = Input;
@@ -22,6 +23,7 @@ function App() {
   const [saving, setSaving] = useState(false);
   const [preferences, setPreferences] = useState(null);
   const [pushSupported, setPushSupported] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   const tokenValidatedRef = useRef(false); // Prevent double validation in React.StrictMode
 
   // Validate token and load context on mount
@@ -91,8 +93,20 @@ function App() {
     if (context?.locationId) {
       loadPreferences();
       checkPushSupport();
+      checkSubscriptionStatus();
     }
   }, [context]);
+
+  const checkSubscriptionStatus = async () => {
+    try {
+      const response = await axios.get(getSubscriptionStatusUrl(), {
+        params: { locationId: context.locationId }
+      });
+      setSubscriptionStatus(response.data);
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+    }
+  };
 
   const loadPreferences = async () => {
     try {
@@ -208,6 +222,11 @@ function App() {
       console.log('Subscription saved to backend:', subscribeResponse.data);
 
       message.success('Push notifications enabled!');
+      
+      // Clear expired status
+      if (subscriptionStatus?.hasExpiredSubscription) {
+        setSubscriptionStatus({ ...subscriptionStatus, hasExpiredSubscription: false });
+      }
       
       // Update preferences to enable push
       setPreferences(prev => ({
@@ -381,6 +400,29 @@ function App() {
         closable
         style={{ marginBottom: '20px' }}
       />
+
+      {/* Expired Subscription Warning */}
+      {subscriptionStatus?.hasExpiredSubscription && (
+        <Alert
+          type="error"
+          icon={<WarningOutlined />}
+          message="⚠️ Push Subscription Expired"
+          description={
+            <div>
+              <p style={{ marginBottom: '12px' }}>
+                Your browser push notifications have stopped working because the subscription expired. 
+                This can happen when you clear browser data or after long periods of inactivity.
+              </p>
+              <p style={{ marginBottom: '0', fontWeight: '500' }}>
+                💡 Please toggle "Browser Push Notifications" OFF and then ON again to reconnect.
+              </p>
+            </div>
+          }
+          style={{ marginBottom: '20px' }}
+          closable
+          onClose={() => setSubscriptionStatus({ ...subscriptionStatus, hasExpiredSubscription: false })}
+        />
+      )}
       
       <div style={{ marginBottom: '30px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}>

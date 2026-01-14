@@ -21,6 +21,39 @@ router.get('/vapid-public-key', (req, res) => {
 });
 
 /**
+ * Check subscription status for a location
+ */
+router.get('/status', async (req, res) => {
+  try {
+    const { locationId } = req.query;
+
+    if (!locationId) {
+      return res.status(400).json({
+        success: false,
+        error: 'locationId is required'
+      });
+    }
+
+    const activeSubscriptions = await PushSubscription.findActiveByLocation(locationId);
+    const hasExpired = await PushSubscription.hasExpiredSubscription(locationId);
+
+    res.json({
+      success: true,
+      hasActiveSubscription: activeSubscriptions.length > 0,
+      hasExpiredSubscription: hasExpired,
+      activeCount: activeSubscriptions.length
+    });
+
+  } catch (error) {
+    logger.error('Error checking subscription status:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * Subscribe to push notifications
  */
 router.post('/subscribe', [
@@ -41,7 +74,13 @@ router.post('/subscribe', [
 
     const { locationId, userId, subscription, userAgent } = req.body;
 
-    // Save or update subscription
+    // Mark any old expired subscriptions for this location as inactive
+    await PushSubscription.updateMany(
+      { locationId, isExpired: true },
+      { isActive: false }
+    );
+
+    // Save or update subscription (clears expired flag)
     const pushSub = await PushSubscription.findOneAndUpdate(
       { 'subscription.endpoint': subscription.endpoint },
       {
@@ -50,6 +89,9 @@ router.post('/subscribe', [
         subscription,
         userAgent,
         isActive: true,
+        isExpired: false, // Clear expired flag
+        expiredAt: null,
+        expiredReason: null,
         lastUsedAt: new Date()
       },
       {

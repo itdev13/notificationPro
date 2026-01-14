@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useGHLContext } from '../hooks/useGHLContext';
 import { Card, Tag, Alert, Button, Spin } from 'antd';
-import { BellOutlined, MailOutlined, SlackOutlined, ClockCircleOutlined, RocketOutlined } from '@ant-design/icons';
+import { BellOutlined, MailOutlined, SlackOutlined, ClockCircleOutlined, RocketOutlined, WarningOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import { getSettingsUrl, getGenerateTokenUrl } from '../constants/api';
+import { getSettingsUrl, getGenerateTokenUrl, getSubscriptionStatusUrl } from '../constants/api';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
 export default function SettingsTab() {
   const { context } = useGHLContext();
   const [loading, setLoading] = useState(true);
   const [preferences, setPreferences] = useState(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
 
   useEffect(() => {
     if (context?.locationId) {
       loadPreferences();
+      checkSubscriptionStatus();
     }
   }, [context]);
 
@@ -28,6 +30,17 @@ export default function SettingsTab() {
       console.error('Error loading preferences:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkSubscriptionStatus = async () => {
+    try {
+      const response = await axios.get(getSubscriptionStatusUrl(), {
+        params: { locationId: context.locationId }
+      });
+      setSubscriptionStatus(response.data);
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
     }
   };
 
@@ -76,6 +89,35 @@ export default function SettingsTab() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      {/* Expired Subscription Warning */}
+      {subscriptionStatus?.hasExpiredSubscription && preferences?.channels?.push?.enabled && (
+        <Alert
+          type="warning"
+          icon={<WarningOutlined />}
+          message="Push Notifications Expired"
+          description={
+            <div>
+              <p style={{ marginBottom: '12px' }}>
+                Your browser push subscription has expired. This can happen when you clear browser data, 
+                uninstall the browser, or after long periods of inactivity.
+              </p>
+              <p style={{ marginBottom: '16px', fontWeight: '500' }}>
+                To continue receiving push notifications, please reconnect:
+              </p>
+              <Button 
+                type="primary"
+                icon={<RocketOutlined />}
+                onClick={handleOpenSettings}
+              >
+                Reconnect Push Notifications
+              </Button>
+            </div>
+          }
+          style={{ marginBottom: '24px' }}
+          closable
+        />
+      )}
+
       {/* Quick Setup Banner (if no notifications enabled) */}
       {!hasNotificationsEnabled && (
         <Card style={{ 

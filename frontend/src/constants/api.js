@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
     VAPID_PUBLIC_KEY: '/api/subscriptions/vapid-public-key',
     SUBSCRIBE: '/api/subscriptions/subscribe',
     TEST: '/api/subscriptions/test',
+    STATUS: '/api/subscriptions/status',
   },
   
   // Authentication
@@ -66,6 +67,11 @@ export const getSubscribeUrl = () => buildApiUrl(API_ENDPOINTS.SUBSCRIPTIONS.SUB
  * Get full URL for test notification endpoint
  */
 export const getTestNotificationUrl = () => buildApiUrl(API_ENDPOINTS.SUBSCRIPTIONS.TEST);
+
+/**
+ * Get full URL for subscription status endpoint
+ */
+export const getSubscriptionStatusUrl = () => buildApiUrl(API_ENDPOINTS.SUBSCRIPTIONS.STATUS);
 
 /**
  * Get full URL for decrypt user data endpoint

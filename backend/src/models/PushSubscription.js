@@ -36,6 +36,22 @@ const pushSubscriptionSchema = new mongoose.Schema({
     default: true
   },
   
+  // Expiry tracking
+  isExpired: {
+    type: Boolean,
+    default: false
+  },
+  
+  expiredAt: {
+    type: Date,
+    default: null
+  },
+  
+  expiredReason: {
+    type: String,
+    default: null
+  },
+  
   lastUsedAt: {
     type: Date,
     default: Date.now
@@ -59,6 +75,27 @@ pushSubscriptionSchema.statics.deactivateByEndpoint = async function(endpoint) {
     { isActive: false },
     { new: true }
   );
+};
+
+pushSubscriptionSchema.statics.markAsExpired = async function(endpoint, reason = 'subscription_expired') {
+  return await this.findOneAndUpdate(
+    { 'subscription.endpoint': endpoint },
+    { 
+      isActive: false,
+      isExpired: true,
+      expiredAt: new Date(),
+      expiredReason: reason
+    },
+    { new: true }
+  );
+};
+
+pushSubscriptionSchema.statics.hasExpiredSubscription = async function(locationId) {
+  const expired = await this.findOne({ 
+    locationId, 
+    isExpired: true 
+  });
+  return !!expired;
 };
 
 // Instance methods

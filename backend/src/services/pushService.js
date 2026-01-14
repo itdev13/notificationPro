@@ -100,9 +100,12 @@ class PushService {
     } catch (error) {
       // Handle errors (expired subscription, invalid endpoint, etc.)
       if (error.statusCode === 410 || error.statusCode === 404) {
-        // Subscription expired or invalid - deactivate it
-        logger.warn(`Push subscription expired: ${pushSub.subscription.endpoint}`);
-        await PushSubscription.deactivateByEndpoint(pushSub.subscription.endpoint);
+        // Subscription expired or invalid - mark as expired
+        logger.warn(`Push subscription expired (${error.statusCode}): ${pushSub.subscription.endpoint}`);
+        await PushSubscription.markAsExpired(
+          pushSub.subscription.endpoint,
+          error.statusCode === 410 ? 'subscription_expired' : 'endpoint_not_found'
+        );
       } else {
         logger.error('Push notification error:', error);
       }
