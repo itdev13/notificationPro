@@ -13,8 +13,7 @@ const pushSubscriptionSchema = new mongoose.Schema({
   
   userId: {
     type: String,
-    required: true,
-    default: 'default', // Fallback if not provided
+    required: true, // Must have valid userId - no 'default' fallback
     index: true
   },
   

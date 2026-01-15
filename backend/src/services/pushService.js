@@ -33,7 +33,59 @@ class PushService {
   }
 
   /**
-   * Send push notification to all subscriptions for a location
+   * Send push notification to specific user's subscription
+   * Only sends to the user's active device (one device per user)
+   */
+  async sendToUser(locationId, userId, payload) {
+    try {
+      // Initialize VAPID if not already done
+      this.initializeVapid();
+
+      // Get user's active subscription (should only be one)
+      const subscription = await PushSubscription.findActiveByUser(locationId, userId);
+      
+      if (!subscription) {
+        logger.warn(`No active push subscription for user ${userId} in location ${locationId}`);
+        return { sent: 0, failed: 0 };
+      }
+
+      logger.info(`Sending push to user ${userId} on ${subscription.deviceInfo?.browser || 'unknown device'}`);
+
+      // Prepare notification payload
+      const notificationPayload = JSON.stringify({
+        title: payload.title || 'New Message',
+        body: payload.body || '',
+        icon: payload.icon || '/icon.png',
+        badge: payload.badge || '/badge.png',
+        data: {
+          url: payload.url || '',
+          conversationId: payload.conversationId,
+          contactId: payload.contactId
+        },
+        tag: 'conversation-notification-' + Date.now(),
+        requireInteraction: payload.isPriority || false
+      });
+
+      console.log('notificationPayload', notificationPayload);
+
+      // Send to user's subscription
+      try {
+        await this.sendToSubscription(subscription, notificationPayload);
+        logger.info(`✅ Push sent to user ${userId}`);
+        return { sent: 1, failed: 0 };
+      } catch (error) {
+        logger.error(`❌ Push failed for user ${userId}:`, error.message);
+        return { sent: 0, failed: 1 };
+      }
+
+    } catch (error) {
+      logger.error('Error sending push notification:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send push notification to all subscriptions for a location (Legacy - for testing)
    */
   async sendToLocation(locationId, payload) {
     try {

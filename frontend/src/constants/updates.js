@@ -6,8 +6,15 @@ export const APP_UPDATES = [
   {
     icon: '✅',
     color: 'green',
-    title: 'Browser Push Notifications',
-    description: 'Real-time notifications with sound, even when browser is minimized',
+    title: 'Multi-Webhook Support',
+    description: 'InboundMessage + Task webhooks (Complete, Create, Delete)',
+    badge: 'live'
+  },
+  {
+    icon: '👤',
+    color: 'green',
+    title: 'User-Specific Notifications',
+    description: 'Only receive notifications assigned to YOU',
     badge: 'live'
   },
   {
@@ -32,17 +39,10 @@ export const APP_UPDATES = [
     badge: 'live'
   },
   {
-    icon: '📧',
-    color: 'blue',
-    title: 'Email Notifications',
-    description: 'Get notified via email (coming soon)',
-    badge: 'soon'
-  },
-  {
     icon: '📱',
     color: 'blue',
-    title: 'SMS Notifications',
-    description: 'Receive notifications via text message (coming soon)',
+    title: 'More Webhook Types',
+    description: 'Appointments, Opportunities, and more (request via support)',
     badge: 'soon'
   }
 ];

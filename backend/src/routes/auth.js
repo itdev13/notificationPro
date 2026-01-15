@@ -63,12 +63,12 @@ router.post('/decrypt-user-data', async (req, res) => {
     // Return decrypted user data
     res.json({
       success: true,
-      userId: userData.userId || null,
-      companyId: userData.companyId || null,
-      locationId: userData.activeLocation || userData.locationId || null,
-      email: userData.email || null,
-      userName: userData.userName || null,
-      role: userData.role || null,
+      userId: userData.userId, // Required from GHL
+      companyId: userData.companyId,
+      locationId: userData.activeLocation || userData.locationId,
+      email: userData.email,
+      userName: userData.userName,
+      role: userData.role,
       type: userData.type || (userData.activeLocation ? 'Location' : 'Agency')
     });
 
@@ -99,15 +99,11 @@ router.post('/generate-token', async (req, res) => {
     });
 
     // Validate required fields
-    if (!locationId) {
+    if (!locationId || !userId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required field: locationId'
+        error: 'Missing required fields: locationId and userId are required'
       });
-    }
-
-    if (!userId) {
-      logger.warn('⚠️ Token generation without userId - using default');
     }
 
     // Check JWT secret
@@ -124,7 +120,7 @@ router.post('/generate-token', async (req, res) => {
     const token = jwt.sign(
       {
         locationId,
-        userId: userId || 'default', // Fallback to 'default' if not provided
+        userId, // REQUIRED - must have valid userId
         companyId: companyId || '',
         email: email || '',
         userName: userName || '',
@@ -135,11 +131,11 @@ router.post('/generate-token', async (req, res) => {
       { 
         expiresIn: '15m',
         issuer: 'notifypro',
-        subject: userId || 'default'
+        subject: userId
       }
     );
 
-    logger.info(`Token generated for user ${userId || 'default'} (location: ${locationId})`);
+    logger.info(`Token generated for user ${userId} (location: ${locationId})`);
 
     logger.info(`Token generated for user ${userId} (location: ${locationId})`);
 
@@ -213,12 +209,21 @@ router.post('/validate-token', async (req, res) => {
 
     logger.info(`Token validated for user ${decoded.userId} (location: ${decoded.locationId})`);
 
+    // Validate userId in token
+    if (!decoded.userId) {
+      logger.error('❌ Token does not contain userId');
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid token: userId missing'
+      });
+    }
+
     // Return user context
     res.json({
       success: true,
       context: {
         locationId: decoded.locationId,
-        userId: decoded.userId,
+        userId: decoded.userId, // REQUIRED
         companyId: decoded.companyId,
         email: decoded.email,
         userName: decoded.userName,

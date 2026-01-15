@@ -36,11 +36,16 @@ export default function SettingsTab() {
 
   const checkSubscriptionStatus = async () => {
     try {
+      if (!context.userId) {
+        console.warn('⚠️ Cannot check subscription status - userId missing');
+        return;
+      }
+
       const deviceInfo = getDeviceInfo();
       const response = await axios.get(getSubscriptionStatusUrl(), {
         params: { 
           locationId: context.locationId,
-          userId: context.userId || 'default',
+          userId: context.userId, // REQUIRED
           deviceId: deviceInfo.deviceId
         }
       });
@@ -58,10 +63,15 @@ export default function SettingsTab() {
         hasUserId: !!context.userId
       });
 
+      if (!context.userId) {
+        message.error('User ID is required. Please refresh the page and try again.');
+        return;
+      }
+
       // Generate token and open settings
       const response = await axios.post(getGenerateTokenUrl(), {
         locationId: context.locationId,
-        userId: context.userId || 'default',
+        userId: context.userId, // REQUIRED
         companyId: context.companyId,
         email: context.email,
         userName: context.userName,

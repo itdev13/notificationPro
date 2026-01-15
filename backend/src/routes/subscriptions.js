@@ -25,18 +25,14 @@ router.get('/vapid-public-key', (req, res) => {
  */
 router.get('/status', async (req, res) => {
   try {
-    let { locationId, deviceId } = req.query;
-    let { userId } = req.query;
+    const { locationId, userId, deviceId } = req.query;
 
-    if (!locationId) {
+    if (!locationId || !userId) {
       return res.status(400).json({
         success: false,
-        error: 'locationId is required'
+        error: 'locationId and userId are required'
       });
     }
-
-    // Use 'default' if userId not provided
-    userId = userId || 'default';
 
     // Get user's ONLY active subscription (should only be one)
     const activeSubscription = await PushSubscription.findOne({ 
@@ -100,13 +96,15 @@ router.post('/subscribe', [
       });
     }
 
-    const { locationId, subscription, userAgent, deviceInfo } = req.body;
-    let { userId } = req.body;
+    const { locationId, userId, subscription, userAgent, deviceInfo } = req.body;
 
-    // Fallback: Use 'default' if userId not provided (legacy support)
+    // Validate userId - REQUIRED
     if (!userId || userId === 'null' || userId === 'undefined') {
-      userId = 'default';
-      logger.warn(`⚠️ userId not provided for locationId ${locationId}, using 'default'`);
+      logger.error(`❌ userId not provided for subscription`);
+      return res.status(400).json({
+        success: false,
+        error: 'userId is required for push notifications'
+      });
     }
 
     // IMPORTANT: Only ONE subscription per user!

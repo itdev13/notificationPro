@@ -9,38 +9,50 @@ const logger = require('../utils/logger');
  */
 
 /**
- * Handle InboundMessage webhook
- * Triggered when a contact sends a message
+ * Unified webhook handler - Supports multiple webhook types
  */
-router.post('/inbound-message', async (req, res) => {
+router.post('/unified', async (req, res) => {
   try {
     const webhookData = req.body;
+    const webhookType = webhookData.type;
     
-    logger.info('📨 Inbound message webhook received:', {
+    logger.info(`📨 Webhook received: ${webhookType}`, {
       locationId: webhookData.locationId,
-      contactId: webhookData.contactId,
-      type: webhookData.type
+      type: webhookType
     });
 
-    // Extract message data
-    const messageData = {
-      locationId: webhookData.locationId,
-      contactId: webhookData.contactId,
-      conversationId: webhookData.conversationId,
-      messageId: webhookData.messageId,
-      message: {
-        text: webhookData.body || webhookData.message || webhookData.text,
-        type: webhookData.type
-      },
-      contactName: webhookData.contactName || 
-                   (webhookData.contact?.name) || 
-                   'Unknown Contact',
-      timestamp: webhookData.dateAdded || new Date().toISOString()
-    };
+    let notificationData = null;
 
-    // Add job to queue (don't wait for processing)
-    const job = await addJob('process-notification', messageData, {
-      priority: 1 // Normal priority
+    // Handle different webhook types
+    switch (webhookType) {
+      case 'InboundMessage':
+        notificationData = await handleInboundMessage(webhookData);
+        break;
+      
+      case 'TaskComplete':
+      case 'TaskCreate':
+      case 'TaskDelete':
+        notificationData = await handleTaskWebhook(webhookData);
+        break;
+      
+      default:
+        logger.warn(`Unsupported webhook type: ${webhookType}`);
+        return res.status(200).json({ 
+          success: false,
+          message: 'Webhook type not supported yet'
+        });
+    }
+
+    if (!notificationData) {
+      return res.status(200).json({ 
+        success: false,
+        message: 'No notification data generated'
+      });
+    }
+
+    // Add job to queue
+    const job = await addJob('process-notification', notificationData, {
+      priority: notificationData.isPriority ? 10 : 1
     });
 
     if (job) {
@@ -64,6 +76,103 @@ router.post('/inbound-message', async (req, res) => {
       error: error.message 
     });
   }
+});
+
+/**
+ * Handle InboundMessage webhook
+ * Fetches contact to get assignedTo (userId) and contactName
+ */
+async function handleInboundMessage(webhookData) {
+  const ghlService = require('../services/ghlService');
+  
+  try {
+    // Fetch contact to get assignedTo user and contact name
+    logger.info('Fetching contact for assignedTo userId and name...');
+    const contact = await ghlService.getContact(
+      webhookData.locationId,
+      webhookData.contactId
+    );
+
+    const assignedUserId = contact?.assignedTo || null;
+    const contactName = contact?.name || webhookData.contactName || 'Unknown Contact';
+    
+    if (!assignedUserId) {
+      logger.warn('❌ No assignedTo user for this contact - SKIPPING notification (unassigned contact)');
+      return null; // Skip notification if contact not assigned to anyone
+    }
+
+    logger.info(`✅ Contact "${contactName}" assigned to user: ${assignedUserId}`);
+
+    return {
+      locationId: webhookData.locationId,
+      userId: assignedUserId, // CRITICAL: Only notify assigned user
+      contactId: webhookData.contactId,
+      conversationId: webhookData.conversationId,
+      messageId: webhookData.messageId,
+      message: {
+        text: webhookData.body || webhookData.message || '',
+        type: webhookData.messageType || webhookData.type
+      },
+      contactName: contactName, // From GHL API (more reliable)
+      timestamp: webhookData.dateAdded || new Date().toISOString(),
+      webhookType: 'InboundMessage'
+    };
+  } catch (error) {
+    logger.error('Error handling InboundMessage:', error);
+    throw error;
+  }
+}
+
+/**
+ * Handle Task webhooks (TaskComplete, TaskCreate, TaskDelete)
+ * Uses assignedTo field directly
+ */
+async function handleTaskWebhook(webhookData) {
+  try {
+    const assignedUserId = webhookData.assignedTo || null;
+    
+    if (!assignedUserId) {
+      logger.warn('❌ No assignedTo user for task - SKIPPING notification');
+      return null; // Skip notification if not assigned
+    }
+
+    logger.info(`✅ Task assigned to user: ${assignedUserId}`);
+
+    const taskAction = webhookData.type.replace('Task', ''); // Complete, Create, Delete
+
+    return {
+      locationId: webhookData.locationId,
+      userId: assignedUserId, // CRITICAL: Only notify assigned user
+      contactId: webhookData.contactId,
+      conversationId: null, // Tasks don't have conversation
+      messageId: webhookData.id, // Task ID
+      message: {
+        text: `Task ${taskAction}: ${webhookData.title || 'Untitled'}\n${webhookData.body || ''}`,
+        type: webhookData.type
+      },
+      contactName: 'Task Notification',
+      timestamp: webhookData.dateAdded || new Date().toISOString(),
+      webhookType: webhookData.type,
+      taskData: {
+        taskId: webhookData.id,
+        title: webhookData.title,
+        body: webhookData.body,
+        dueDate: webhookData.dueDate,
+        action: taskAction
+      }
+    };
+  } catch (error) {
+    logger.error('Error handling task webhook:', error);
+    throw error;
+  }
+}
+
+/**
+ * Legacy endpoint - redirects to unified
+ */
+router.post('/inbound-message', async (req, res) => {
+  req.body.type = req.body.type || 'InboundMessage';
+  return router.handle(req, res);
 });
 
 /**

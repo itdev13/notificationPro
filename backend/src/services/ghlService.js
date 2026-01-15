@@ -625,6 +625,46 @@ class GHLService {
       throw new Error(`Failed to create conversation: ${error.response?.data?.message || error.message}`);
     }
   }
+
+  /**
+   * Get contact details (to find assignedTo user and contact name)
+   * Reference: https://marketplace.gohighlevel.com/docs/ghl/contacts/get-contact
+   */
+  async getContact(locationId, contactId) {
+    try {
+      logger.info(`Fetching contact ${contactId} for assignedTo and name`);
+      
+      const response = await this.apiRequest(
+        'GET',
+        `/contacts/${contactId}`,
+        locationId
+      );
+
+      const contact = response.contact || response;
+      
+      // Get contact name (first + last, or just one, or fallback)
+      const contactName = contact.name || 
+                         (contact.firstName && contact.lastName 
+                           ? `${contact.firstName} ${contact.lastName}`.trim()
+                           : contact.firstName || contact.lastName || contact.email || 'Unknown Contact');
+      
+      return {
+        id: contact.id,
+        name: contactName,
+        assignedTo: contact.assignedTo || null, // userId assigned to this contact
+        email: contact.email,
+        phone: contact.phone
+      };
+    } catch (error) {
+      logger.error('Failed to fetch contact:', error.message);
+      // Return null if fetch fails (skip notification)
+      return {
+        id: contactId,
+        name: null,
+        assignedTo: null
+      };
+    }
+  }
 }
 
 module.exports = new GHLService();

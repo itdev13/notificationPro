@@ -100,11 +100,16 @@ function App() {
 
   const checkSubscriptionStatus = async () => {
     try {
+      if (!context.userId) {
+        console.warn('⚠️ Cannot check subscription status - userId missing');
+        return;
+      }
+
       const deviceInfo = getDeviceInfo();
       const response = await axios.get(getSubscriptionStatusUrl(), {
         params: { 
           locationId: context.locationId,
-          userId: context.userId || 'default',
+          userId: context.userId, // REQUIRED
           deviceId: deviceInfo.deviceId
         }
       });
@@ -232,18 +237,18 @@ function App() {
         type: context.type
       });
       
-      // Ensure we have userId
+      // Ensure we have userId - REQUIRED
       if (!context.userId) {
-        console.error('⚠️ userId is missing from context!');
+        console.error('❌ userId is missing from context!');
         console.error('Full context:', JSON.stringify(context, null, 2));
-        message.warning('User ID not available. Subscription will use default user.');
+        throw new Error('User ID is required for push notifications. Please try reopening settings.');
       }
       
-      console.log('Sending subscription with userId:', context.userId || 'default');
+      console.log('Sending subscription with userId:', context.userId);
       
       const subscribeResponse = await axios.post(getSubscribeUrl(), {
         locationId: context.locationId,
-        userId: context.userId || 'default', // Required: Track per user (fallback to 'default')
+        userId: context.userId, // REQUIRED: Must have valid userId
         subscription: subscription.toJSON(),
         userAgent: navigator.userAgent,
         deviceInfo: deviceInfo
@@ -894,20 +899,51 @@ function App() {
         </Button>
       </div>
 
-      {/* Info Box */}
-      <Alert
-        type="info"
-        message="How NotifyPro Works"
-        description={
-          <div>
-            <p>• When a contact sends you a message in GHL, NotifyPro instantly notifies you</p>
-            <p>• Notifications are sent to all enabled channels (browser push, slack)</p>
-            <p>• Business hours filter prevents notifications outside working hours</p>
-            <p>• Priority keywords ensure important messages always get through</p>
+      {/* Supported Webhooks Info */}
+      <Card title="📡 Supported Notifications" style={{ marginTop: '20px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{ fontWeight: '600', marginBottom: '12px', color: '#333' }}>
+            You'll receive notifications for:
+          </h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Tag color="green">ACTIVE</Tag>
+              <span><strong>Inbound Messages</strong> - All messages assigned to you (SMS, WhatsApp, FB, IG, Email, etc.)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Tag color="green">ACTIVE</Tag>
+              <span><strong>Task Complete</strong> - When tasks assigned to you are completed</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Tag color="green">ACTIVE</Tag>
+              <span><strong>Task Create</strong> - When new tasks are assigned to you</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Tag color="green">ACTIVE</Tag>
+              <span><strong>Task Delete</strong> - When your tasks are deleted</span>
+            </div>
           </div>
-        }
-        style={{ marginTop: '20px' }}
-      />
+        </div>
+        
+        <Alert
+          type="info"
+          message="🎯 Smart Filtering"
+          description={
+            <div>
+              <p style={{ marginBottom: '4px' }}>• Only notifications <strong>assigned to you</strong> are sent</p>
+              <p style={{ marginBottom: '4px' }}>• Business hours filter prevents notifications outside working hours</p>
+              <p style={{ marginBottom: '4px' }}>• Priority keywords ensure important messages always get through</p>
+              <p style={{ marginBottom: '0' }}>• One device per user - latest device receives all notifications</p>
+            </div>
+          }
+        />
+
+        <div style={{ marginTop: '16px', padding: '12px', background: '#fff7e6', borderRadius: '8px', border: '1px solid #ffd591' }}>
+          <p style={{ margin: 0, fontSize: '13px', color: '#d46b08' }}>
+            💡 <strong>Need more notification types?</strong> Contact premium support and we'll add them within 24 hours!
+          </p>
+        </div>
+      </Card>
     </div>
   );
 }

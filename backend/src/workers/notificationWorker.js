@@ -23,9 +23,19 @@ let isRunning = false;
  * Process a single notification job
  */
 async function processJob(jobData) {
-  const { locationId, contactId, conversationId, messageId, message, contactName } = jobData;
+  const { locationId, userId, contactId, conversationId, messageId, message, contactName, webhookType } = jobData;
   
-  logger.info(`Processing notification job for location: ${locationId}`);
+  // Skip if no userId (not assigned to anyone)
+  if (!userId) {
+    logger.warn(`⚠️ No userId in job data - notification skipped (not assigned)`);
+    return { skipped: true, reason: 'no_user_assigned' };
+  }
+
+  logger.info(`Processing notification for ${webhookType || 'message'}:`, {
+    location: locationId,
+    user: userId,
+    type: webhookType
+  });
 
   try {
     // 1. Load preferences
@@ -71,10 +81,10 @@ async function processJob(jobData) {
       slack: null
     };
 
-    // Send push notifications
-    if (preferences.channels.push.enabled) {
+    // Send push notifications (only to assigned user)
+    if (preferences.channels.push.enabled && userId) {
       try {
-        results.push = await pushService.sendToLocation(locationId, payload);
+        results.push = await pushService.sendToUser(locationId, userId, payload);
         
         await NotificationLog.create({
           locationId,
