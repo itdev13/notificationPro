@@ -168,29 +168,6 @@ async function handleTaskWebhook(webhookData) {
 }
 
 /**
- * Legacy endpoint - redirects to unified
- */
-router.post('/inbound-message', async (req, res) => {
-  req.body.type = req.body.type || 'InboundMessage';
-  return router.handle(req, res);
-});
-
-/**
- * Handle ConversationUnread webhook (optional)
- * Could be used for notification counts
- */
-router.post('/conversation-unread', async (req, res) => {
-  try {
-    logger.info('📬 Conversation unread webhook received');
-    // Handle if needed for future features
-    res.status(200).json({ success: true });
-  } catch (error) {
-    logger.error('Webhook error:', error);
-    res.status(200).json({ success: false });
-  }
-});
-
-/**
  * Webhook health check
  */
 router.get('/health', (req, res) => {
