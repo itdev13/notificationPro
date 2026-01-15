@@ -44,20 +44,31 @@ router.post('/decrypt-user-data', async (req, res) => {
     const decrypted = CryptoJS.AES.decrypt(encryptedData, sharedSecret).toString(CryptoJS.enc.Utf8);
     const userData = JSON.parse(decrypted);
 
+    // Log to check userId presence
+    if (!userData.userId) {
+      logger.warn('⚠️ userId not found in decrypted data from GHL!', {
+        hasUserId: !!userData.userId,
+        fields: Object.keys(userData)
+      });
+    }
+
     // Don't log sensitive user data in production
     if (process.env.NODE_ENV !== 'production') {
-      logger.info('User data decrypted');
+      logger.info('User data decrypted', {
+        userId: userData.userId ? 'present' : 'MISSING',
+        locationId: userData.locationId || userData.activeLocation ? 'present' : 'MISSING'
+      });
     }
 
     // Return decrypted user data
     res.json({
       success: true,
-      userId: userData.userId,
-      companyId: userData.companyId,
-      locationId: userData.activeLocation || userData.locationId,
-      email: userData.email,
-      userName: userData.userName,
-      role: userData.role,
+      userId: userData.userId || null,
+      companyId: userData.companyId || null,
+      locationId: userData.activeLocation || userData.locationId || null,
+      email: userData.email || null,
+      userName: userData.userName || null,
+      role: userData.role || null,
       type: userData.type || (userData.activeLocation ? 'Location' : 'Agency')
     });
 
@@ -79,12 +90,24 @@ router.post('/generate-token', async (req, res) => {
   try {
     const { locationId, userId, companyId, email, userName, type } = req.body;
 
+    // Log received data for debugging
+    logger.info('Generate token request:', {
+      hasLocationId: !!locationId,
+      hasUserId: !!userId,
+      userId: userId,
+      type: type
+    });
+
     // Validate required fields
-    if (!locationId || !userId) {
+    if (!locationId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: locationId and userId are required'
+        error: 'Missing required field: locationId'
       });
+    }
+
+    if (!userId) {
+      logger.warn('⚠️ Token generation without userId - using default');
     }
 
     // Check JWT secret
@@ -101,7 +124,7 @@ router.post('/generate-token', async (req, res) => {
     const token = jwt.sign(
       {
         locationId,
-        userId,
+        userId: userId || 'default', // Fallback to 'default' if not provided
         companyId: companyId || '',
         email: email || '',
         userName: userName || '',
@@ -112,9 +135,11 @@ router.post('/generate-token', async (req, res) => {
       { 
         expiresIn: '15m',
         issuer: 'notifypro',
-        subject: userId
+        subject: userId || 'default'
       }
     );
+
+    logger.info(`Token generated for user ${userId || 'default'} (location: ${locationId})`);
 
     logger.info(`Token generated for user ${userId} (location: ${locationId})`);
 

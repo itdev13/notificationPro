@@ -21,11 +21,12 @@ router.get('/vapid-public-key', (req, res) => {
 });
 
 /**
- * Check subscription status for a location
+ * Check subscription status for current user + device
  */
 router.get('/status', async (req, res) => {
   try {
-    const { locationId } = req.query;
+    let { locationId, deviceId } = req.query;
+    let { userId } = req.query;
 
     if (!locationId) {
       return res.status(400).json({
@@ -34,14 +35,40 @@ router.get('/status', async (req, res) => {
       });
     }
 
-    const activeSubscriptions = await PushSubscription.findActiveByLocation(locationId);
-    const hasExpired = await PushSubscription.hasExpiredSubscription(locationId);
+    // Use 'default' if userId not provided
+    userId = userId || 'default';
+
+    // Get user's ONLY active subscription (should only be one)
+    const activeSubscription = await PushSubscription.findOne({ 
+      locationId, 
+      userId,
+      isActive: true 
+    });
+
+    // Check if the active subscription is for THIS device
+    const isThisDevice = activeSubscription?.deviceInfo?.deviceId === deviceId;
+
+    // Check if user has any expired subscriptions
+    const hasExpired = await PushSubscription.findOne({ 
+      locationId, 
+      userId,
+      isExpired: true 
+    });
+
+    // Get active device info
+    const activeDevice = activeSubscription?.deviceInfo ? {
+      browser: activeSubscription.deviceInfo.browser,
+      os: activeSubscription.deviceInfo.os,
+      lastUsed: activeSubscription.lastUsedAt
+    } : null;
 
     res.json({
       success: true,
-      hasActiveSubscription: activeSubscriptions.length > 0,
-      hasExpiredSubscription: hasExpired,
-      activeCount: activeSubscriptions.length
+      hasActiveSubscription: !!activeSubscription,
+      isActiveOnThisDevice: isThisDevice,
+      isActiveOnDifferentDevice: !!activeSubscription && !isThisDevice,
+      hasExpiredSubscription: !!hasExpired,
+      activeDevice: activeDevice
     });
 
   } catch (error) {
@@ -62,6 +89,7 @@ router.post('/subscribe', [
   body('subscription.endpoint').notEmpty().withMessage('subscription.endpoint is required'),
   body('subscription.keys.p256dh').notEmpty().withMessage('subscription.keys.p256dh is required'),
   body('subscription.keys.auth').notEmpty().withMessage('subscription.keys.auth is required')
+  // Note: userId is optional but highly recommended for multi-user support
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -72,22 +100,35 @@ router.post('/subscribe', [
       });
     }
 
-    const { locationId, userId, subscription, userAgent } = req.body;
+    const { locationId, subscription, userAgent, deviceInfo } = req.body;
+    let { userId } = req.body;
 
-    // Mark any old expired subscriptions for this location as inactive
-    await PushSubscription.updateMany(
-      { locationId, isExpired: true },
+    // Fallback: Use 'default' if userId not provided (legacy support)
+    if (!userId || userId === 'null' || userId === 'undefined') {
+      userId = 'default';
+      logger.warn(`⚠️ userId not provided for locationId ${locationId}, using 'default'`);
+    }
+
+    // IMPORTANT: Only ONE subscription per user!
+    // Deactivate ALL existing subscriptions for this user
+    const deactivated = await PushSubscription.updateMany(
+      { locationId, userId },
       { isActive: false }
     );
 
-    // Save or update subscription (clears expired flag)
+    if (deactivated.modifiedCount > 0) {
+      logger.info(`Deactivated ${deactivated.modifiedCount} old subscription(s) for user ${userId} - latest device takes over`);
+    }
+
+    // Save NEW subscription as the ONLY active one
     const pushSub = await PushSubscription.findOneAndUpdate(
       { 'subscription.endpoint': subscription.endpoint },
       {
         locationId,
-        userId: userId || null,
+        userId,
         subscription,
         userAgent,
+        deviceInfo: deviceInfo || null,
         isActive: true,
         isExpired: false, // Clear expired flag
         expiredAt: null,
@@ -99,6 +140,8 @@ router.post('/subscribe', [
         new: true
       }
     );
+
+    logger.info(`New subscription active for user ${userId} on ${deviceInfo?.browser || 'unknown browser'}`);
 
     logger.info(`✅ Push subscription saved for location: ${locationId}`);
 

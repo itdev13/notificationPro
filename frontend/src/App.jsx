@@ -11,6 +11,7 @@ import {
   getValidateTokenUrl,
   getSubscriptionStatusUrl
 } from './constants/api';
+import { getDeviceInfo, getDeviceDisplayName } from './utils/deviceInfo';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -99,10 +100,16 @@ function App() {
 
   const checkSubscriptionStatus = async () => {
     try {
+      const deviceInfo = getDeviceInfo();
       const response = await axios.get(getSubscriptionStatusUrl(), {
-        params: { locationId: context.locationId }
+        params: { 
+          locationId: context.locationId,
+          userId: context.userId || 'default',
+          deviceId: deviceInfo.deviceId
+        }
       });
       setSubscriptionStatus(response.data);
+      console.log('Subscription status:', response.data);
     } catch (error) {
       console.error('Error checking subscription status:', error);
     }
@@ -214,12 +221,35 @@ function App() {
         keys: subscription.keys ? 'present' : 'missing'
       });
       
+      const deviceInfo = getDeviceInfo();
+      
+      // Log full context for debugging
+      console.log('Current context:', {
+        locationId: context.locationId,
+        userId: context.userId,
+        userName: context.userName,
+        email: context.email,
+        type: context.type
+      });
+      
+      // Ensure we have userId
+      if (!context.userId) {
+        console.error('⚠️ userId is missing from context!');
+        console.error('Full context:', JSON.stringify(context, null, 2));
+        message.warning('User ID not available. Subscription will use default user.');
+      }
+      
+      console.log('Sending subscription with userId:', context.userId || 'default');
+      
       const subscribeResponse = await axios.post(getSubscribeUrl(), {
         locationId: context.locationId,
+        userId: context.userId || 'default', // Required: Track per user (fallback to 'default')
         subscription: subscription.toJSON(),
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
+        deviceInfo: deviceInfo
       });
       console.log('Subscription saved to backend:', subscribeResponse.data);
+      console.log('Device:', getDeviceDisplayName());
 
       message.success('Push notifications enabled!');
       
@@ -401,6 +431,29 @@ function App() {
         style={{ marginBottom: '20px' }}
       />
 
+      {/* Different Device Warning */}
+      {subscriptionStatus?.isActiveOnDifferentDevice && (
+        <Alert
+          type="warning"
+          icon={<WarningOutlined />}
+          message="📱 Push Notifications Active on Different Device"
+          description={
+            <div>
+              <p style={{ marginBottom: '12px' }}>
+                Push notifications are currently enabled on <strong>{subscriptionStatus.activeDevice?.browser} on {subscriptionStatus.activeDevice?.os}</strong>, 
+                not on <strong>{getDeviceDisplayName()}</strong>.
+              </p>
+              <p style={{ marginBottom: '0', fontWeight: '500', color: '#d46b08' }}>
+                ⚠️ Note: Only ONE device can receive push notifications at a time. 
+                If you enable on this device, it will replace the other one.
+              </p>
+            </div>
+          }
+          style={{ marginBottom: '20px' }}
+          closable
+        />
+      )}
+
       {/* Expired Subscription Warning */}
       {subscriptionStatus?.hasExpiredSubscription && (
         <Alert
@@ -442,12 +495,32 @@ function App() {
               <h3 style={{ margin: 0 }}>🔔 Browser Push Notifications</h3>
               <p style={{ color: '#666', fontSize: '14px', margin: '5px 0' }}>
                 Get instant notifications in your browser
+                {subscriptionStatus?.isActiveOnThisDevice && (
+                  <span style={{ color: '#52c41a', fontWeight: '500' }}> • Active on this device</span>
+                )}
               </p>
             </div>
             <Switch
               checked={preferences.channels.push.enabled}
               onChange={async (checked) => {
                 if (checked) {
+                  // Show warning if switching from another device
+                  if (subscriptionStatus?.isActiveOnDifferentDevice) {
+                    const activeDevice = `${subscriptionStatus.activeDevice?.browser} on ${subscriptionStatus.activeDevice?.os}`;
+                    const currentDevice = getDeviceDisplayName();
+                    
+                    const confirmed = window.confirm(
+                      `Push notifications are currently active on ${activeDevice}.\n\n` +
+                      `Enabling on ${currentDevice} will deactivate the other device.\n\n` +
+                      `Only one device can receive notifications at a time.\n\n` +
+                      `Continue?`
+                    );
+                    
+                    if (!confirmed) {
+                      return;
+                    }
+                  }
+                  
                   try {
                     const permission = await Notification.requestPermission();
                     console.log('Notification permission:', permission);
@@ -490,11 +563,20 @@ function App() {
               style={{ marginTop: '10px' }} 
             />
           )}
+          {pushSupported && (
+            <Alert 
+              type="info" 
+              message="💡 One Device Per User" 
+              description="Push notifications work on one browser/device at a time per user. If you enable on a new device, it will replace the previous one. Use Slack for notifications on all devices simultaneously."
+              style={{ marginTop: '10px' }} 
+              closable
+            />
+          )}
           {preferences.channels.push.enabled && (
             <div style={{ marginTop: '15px', padding: '15px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #91d5ff' }}>
               <p style={{ fontSize: '14px', color: '#0050b3', marginBottom: '12px' }}>
                 ✅ Browser push notifications are enabled! Test it below:
-              </p>
+                </p>
               <Button 
                 type="primary"
                 size="small" 
@@ -596,21 +678,21 @@ function App() {
                     <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '6px' }}>
                       Start Time
                     </label>
-                    <Input
-                      type="time"
-                      value={preferences.filters.businessHours.start || '09:00'}
-                      onChange={(e) => {
-                        setPreferences(prev => ({
-                          ...prev,
-                          filters: {
-                            ...prev.filters,
-                            businessHours: {
-                              ...prev.filters.businessHours,
-                              start: e.target.value
-                            }
+                  <Input
+                    type="time"
+                    value={preferences.filters.businessHours.start || '09:00'}
+                    onChange={(e) => {
+                      setPreferences(prev => ({
+                        ...prev,
+                        filters: {
+                          ...prev.filters,
+                          businessHours: {
+                            ...prev.filters.businessHours,
+                            start: e.target.value
                           }
-                        }));
-                      }}
+                        }
+                      }));
+                    }}
                       size="large"
                       style={{ 
                         fontSize: '16px',
@@ -633,27 +715,27 @@ function App() {
                     <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '6px' }}>
                       End Time
                     </label>
-                    <Input
-                      type="time"
-                      value={preferences.filters.businessHours.end || '17:00'}
-                      onChange={(e) => {
-                        setPreferences(prev => ({
-                          ...prev,
-                          filters: {
-                            ...prev.filters,
-                            businessHours: {
-                              ...prev.filters.businessHours,
-                              end: e.target.value
-                            }
+                  <Input
+                    type="time"
+                    value={preferences.filters.businessHours.end || '17:00'}
+                    onChange={(e) => {
+                      setPreferences(prev => ({
+                        ...prev,
+                        filters: {
+                          ...prev.filters,
+                          businessHours: {
+                            ...prev.filters.businessHours,
+                            end: e.target.value
                           }
-                        }));
-                      }}
+                        }
+                      }));
+                    }}
                       size="large"
                       style={{ 
                         fontSize: '16px',
                         fontWeight: '600'
                       }}
-                    />
+                  />
                   </div>
                 </div>
                 <p style={{ fontSize: '12px', color: '#999', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>

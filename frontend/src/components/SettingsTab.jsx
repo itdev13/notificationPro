@@ -5,6 +5,7 @@ import { BellOutlined, MailOutlined, SlackOutlined, ClockCircleOutlined, RocketO
 import axios from 'axios';
 import { getSettingsUrl, getGenerateTokenUrl, getSubscriptionStatusUrl } from '../constants/api';
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { getDeviceInfo, getDeviceDisplayName } from '../utils/deviceInfo';
 
 export default function SettingsTab() {
   const { context } = useGHLContext();
@@ -35,8 +36,13 @@ export default function SettingsTab() {
 
   const checkSubscriptionStatus = async () => {
     try {
+      const deviceInfo = getDeviceInfo();
       const response = await axios.get(getSubscriptionStatusUrl(), {
-        params: { locationId: context.locationId }
+        params: { 
+          locationId: context.locationId,
+          userId: context.userId || 'default',
+          deviceId: deviceInfo.deviceId
+        }
       });
       setSubscriptionStatus(response.data);
     } catch (error) {
@@ -46,10 +52,16 @@ export default function SettingsTab() {
 
   const handleOpenSettings = async () => {
     try {
+      console.log('Opening settings with context:', {
+        locationId: context.locationId,
+        userId: context.userId,
+        hasUserId: !!context.userId
+      });
+
       // Generate token and open settings
       const response = await axios.post(getGenerateTokenUrl(), {
         locationId: context.locationId,
-        userId: context.userId,
+        userId: context.userId || 'default',
         companyId: context.companyId,
         email: context.email,
         userName: context.userName,
@@ -89,12 +101,42 @@ export default function SettingsTab() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      {/* Different Device Warning */}
+      {subscriptionStatus?.isActiveOnDifferentDevice && (
+        <Alert
+          type="warning"
+          icon={<WarningOutlined />}
+          message="📱 Push Notifications Active on Different Device"
+          description={
+            <div>
+              <p style={{ marginBottom: '12px' }}>
+                Push notifications are currently enabled on <strong>{subscriptionStatus.activeDevice?.browser} on {subscriptionStatus.activeDevice?.os}</strong>, 
+                not on <strong>{getDeviceDisplayName()}</strong>.
+              </p>
+              <p style={{ marginBottom: '16px', fontWeight: '500', color: '#d46b08' }}>
+                ⚠️ Note: Only ONE device can receive notifications at a time. 
+                Enabling here will switch notifications to this device.
+              </p>
+              <Button 
+                type="primary"
+                icon={<RocketOutlined />}
+                onClick={handleOpenSettings}
+              >
+                Switch to This Device
+              </Button>
+            </div>
+          }
+          style={{ marginBottom: '24px' }}
+          closable
+        />
+      )}
+
       {/* Expired Subscription Warning */}
       {subscriptionStatus?.hasExpiredSubscription && preferences?.channels?.push?.enabled && (
         <Alert
           type="warning"
           icon={<WarningOutlined />}
-          message="Push Notifications Expired"
+          message="⚠️ Push Notifications Expired"
           description={
             <div>
               <p style={{ marginBottom: '12px' }}>
@@ -102,7 +144,7 @@ export default function SettingsTab() {
                 uninstall the browser, or after long periods of inactivity.
               </p>
               <p style={{ marginBottom: '16px', fontWeight: '500' }}>
-                To continue receiving push notifications, please reconnect:
+                To continue receiving push notifications:
               </p>
               <Button 
                 type="primary"
@@ -178,12 +220,17 @@ export default function SettingsTab() {
         style={{ marginBottom: '20px' }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Push */}
+           {/* Push */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
+            <div style={{ flex: 1 }}>
               <strong>🔔 Browser Push Notifications</strong>
               <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0' }}>
-                Instant notifications in your browser
+                {subscriptionStatus?.isActiveOnThisDevice 
+                  ? `Active on this device (${getDeviceDisplayName()})`
+                  : subscriptionStatus?.isActiveOnDifferentDevice
+                  ? `Active on ${subscriptionStatus.activeDevice?.browser} on ${subscriptionStatus.activeDevice?.os}`
+                  : 'Instant notifications in your browser'
+                }
               </p>
             </div>
             <Tag color={preferences.channels.push.enabled ? 'success' : 'default'}>

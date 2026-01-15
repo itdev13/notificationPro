@@ -13,7 +13,16 @@ const pushSubscriptionSchema = new mongoose.Schema({
   
   userId: {
     type: String,
-    default: null
+    required: true,
+    default: 'default', // Fallback if not provided
+    index: true
+  },
+  
+  // Device fingerprint (browser + OS combo)
+  deviceInfo: {
+    browser: String,
+    os: String,
+    deviceId: String // Unique ID for this browser/device combo
   },
   
   // Web Push subscription object
@@ -62,11 +71,19 @@ const pushSubscriptionSchema = new mongoose.Schema({
 
 // Indexes
 pushSubscriptionSchema.index({ locationId: 1, isActive: 1 });
+pushSubscriptionSchema.index({ userId: 1, isActive: 1 });
 // Note: subscription.endpoint already has unique: true in schema (line 24)
+
+// Compound index to track subscriptions per user
+pushSubscriptionSchema.index({ locationId: 1, userId: 1, isActive: 1 });
 
 // Static methods
 pushSubscriptionSchema.statics.findActiveByLocation = async function(locationId) {
   return await this.find({ locationId, isActive: true });
+};
+
+pushSubscriptionSchema.statics.findActiveByUser = async function(locationId, userId) {
+  return await this.findOne({ locationId, userId, isActive: true });
 };
 
 pushSubscriptionSchema.statics.deactivateByEndpoint = async function(endpoint) {
