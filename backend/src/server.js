@@ -141,6 +141,10 @@ class NotifyProApp {
     const subscriptionsRoutes = require('./routes/subscriptions');
     this.app.use('/api/subscriptions', apiLimiter, subscriptionsRoutes);
 
+    // Analytics routes (lightweight, no rate limit)
+    const analyticsRoutes = require('./routes/analytics');
+    this.app.use('/api/analytics', analyticsRoutes);
+
     // Root - API info
     this.app.get('/', (req, res) => {
       res.json({
