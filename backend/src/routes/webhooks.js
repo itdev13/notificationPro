@@ -51,6 +51,10 @@ router.post('/unified', async (req, res) => {
       });
     }
 
+    logger.info('Notification data:', {
+      notificationData: notificationData
+    });
+
     // Add job to queue
     const job = await addJob('process-notification', notificationData, {
       priority: notificationData.isPriority ? 10 : 1
