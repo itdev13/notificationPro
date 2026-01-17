@@ -16,6 +16,22 @@ import { getDeviceInfo, getDeviceDisplayName } from './utils/deviceInfo';
 const { TextArea } = Input;
 const { Option } = Select;
 
+// Convert base64 VAPID key to Uint8Array for Push API
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 function App() {
   const [context, setContext] = useState(null);
   const [contextLoading, setContextLoading] = useState(true);
@@ -211,11 +227,16 @@ function App() {
       // If no subscription, create new one
       if (!subscription) {
         console.log('Creating new subscription...');
-          subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidPublicKey
-          });
-          console.log('New subscription created');
+        
+        // Convert base64 VAPID key to Uint8Array
+        const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+        console.log('VAPID key converted to Uint8Array');
+        
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: applicationServerKey
+        });
+        console.log('New subscription created');
       }
 
       // Save subscription to backend
@@ -510,6 +531,7 @@ function App() {
               onChange={async (checked) => {
                 if (checked) {
                   // Show warning if switching from another device
+                  console.log('subscriptionStatus:', subscriptionStatus);
                   if (subscriptionStatus?.isActiveOnDifferentDevice) {
                     const activeDevice = `${subscriptionStatus.activeDevice?.browser} on ${subscriptionStatus.activeDevice?.os}`;
                     const currentDevice = getDeviceDisplayName();
