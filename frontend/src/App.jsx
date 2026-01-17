@@ -58,6 +58,7 @@ function App() {
   const [preferences, setPreferences] = useState(null);
   const [pushSupported, setPushSupported] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
+  const [isBraveBrowser, setIsBraveBrowser] = useState(false);
   const tokenValidatedRef = useRef(false); // Prevent double validation in React.StrictMode
 
   // Validate token and load context on mount
@@ -171,10 +172,21 @@ function App() {
   const checkPushSupport = async () => {
     console.log("=== CHECKING PUSH SUPPORT ===");
     console.log("Current origin:", window.location.origin);
+    console.log("User Agent:", navigator.userAgent);
+    
+    // Check if Brave browser
+    const isBrave = navigator.brave && (await navigator.brave.isBrave().catch(() => false));
+    console.log("Is Brave browser:", isBrave);
+    setIsBraveBrowser(isBrave);
     
     const supported = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
     console.log("Push supported:", supported);
     console.log("Notification.permission:", Notification.permission);
+    
+    if (isBrave) {
+      console.warn("⚠️ BRAVE BROWSER DETECTED - Push notifications may not work due to Brave Shields");
+      console.warn("Solution: Disable Brave Shields for this site or use Chrome/Edge/Firefox");
+    }
     
     setPushSupported(supported);
     
@@ -298,7 +310,17 @@ function App() {
             console.error('  1. VAPID key format is invalid');
             console.error('  2. Service worker is not in correct state');
             console.error('  3. Existing subscription is corrupted');
+            console.error('  4. BRAVE BROWSER: Shields blocking push notifications');
             console.error('Try: Clear browser data and cookies, then try again');
+            console.error('Or: Use Chrome/Edge/Firefox instead of Brave');
+          }
+          
+          // Create more helpful error for Brave browser
+          if (subscribeError.name === 'AbortError' && subscribeError.message.includes('Registration failed')) {
+            const isBrave = await navigator.brave?.isBrave().catch(() => false);
+            if (isBrave) {
+              throw new Error('Brave browser blocks push notifications. Please disable Brave Shields for this site or use Chrome/Edge/Firefox.');
+            }
           }
           
           throw subscribeError;
@@ -393,6 +415,9 @@ function App() {
       } else if (error.name === 'NotAllowedError') {
         errorMessage = 'Permission denied';
         errorDetails = 'Notification permission was denied. Please enable notifications in your browser settings.';
+      } else if (error.message?.includes('Brave browser')) {
+        errorMessage = '🦁 Brave Browser Not Supported';
+        errorDetails = error.message + ' See the warning banner above for instructions.';
       } else if (error.message?.includes('service worker')) {
         errorMessage = 'Service worker error';
         errorDetails = 'Service worker registration failed. Please check browser console for details.';
@@ -538,6 +563,37 @@ function App() {
               <p style={{ marginBottom: '0', fontWeight: '500', color: '#d46b08' }}>
                 ⚠️ Note: Only ONE device can receive push notifications at a time. 
                 If you enable on this device, it will replace the other one.
+              </p>
+            </div>
+          }
+          style={{ marginBottom: '20px' }}
+          closable
+        />
+      )}
+
+      {/* Brave Browser Warning */}
+      {isBraveBrowser && (
+        <Alert
+          type="warning"
+          icon={<WarningOutlined />}
+          message="🦁 Brave Browser Detected"
+          description={
+            <div>
+              <p style={{ marginBottom: '12px', fontWeight: '500' }}>
+                Brave browser blocks push notifications by default for privacy. Push notifications may not work properly.
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>To enable push notifications in Brave:</strong>
+              </p>
+              <ol style={{ marginBottom: '12px', paddingLeft: '20px' }}>
+                <li>Click the <strong>Brave Shield icon</strong> (lion logo) in the address bar</li>
+                <li>Click <strong>"Advanced View"</strong></li>
+                <li>Set <strong>"Cross-site cookies blocked"</strong> to <strong>"All cookies allowed"</strong> for this site</li>
+                <li>Refresh this page and try enabling push notifications again</li>
+              </ol>
+              <p style={{ marginBottom: '0', padding: '12px', background: '#fff7e6', borderRadius: '6px', border: '1px solid #ffd591' }}>
+                💡 <strong>Alternative:</strong> For reliable push notifications, we recommend using <strong>Chrome, Edge, or Firefox</strong> browsers. 
+                You can still use Slack notifications in Brave without any issues!
               </p>
             </div>
           }

@@ -18,7 +18,8 @@ router.post('/unified', async (req, res) => {
     
     logger.info(`📨 Webhook received: ${webhookType}`, {
       locationId: webhookData.locationId,
-      type: webhookType
+      type: webhookType,
+      data: webhookData
     });
 
     let notificationData = null;
