@@ -336,7 +336,7 @@ export default function SettingsTab() {
           </Button>
           <Button 
             icon={<MailOutlined />}
-            onClick={() => window.location.href = 'mailto:support@notifypro.com'}
+            onClick={() => window.location.href = 'mailto:support@vaultsuite.store'}
           >
             Contact Support
           </Button>
