@@ -18,18 +18,35 @@ const { Option } = Select;
 
 // Convert base64 VAPID key to Uint8Array for Push API
 function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
+  try {
+    // Remove any whitespace
+    base64String = base64String.trim();
+    
+    // Add padding if needed
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
 
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
+    console.log('Converting base64:', {
+      original: base64String.substring(0, 20) + '...',
+      withPadding: base64.substring(0, 20) + '...',
+      paddingAdded: padding.length
+    });
 
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    
+    console.log('Conversion successful, Uint8Array length:', outputArray.length);
+    return outputArray;
+  } catch (error) {
+    console.error('Error converting base64 to Uint8Array:', error);
+    throw new Error('Invalid VAPID public key format: ' + error.message);
   }
-  return outputArray;
 }
 
 function App() {
@@ -209,6 +226,11 @@ function App() {
       const registration = await navigator.serviceWorker.register('/service-worker.js');
       console.log('Service worker registered:', registration);
       
+      // Wait for service worker to be ready
+      console.log('Waiting for service worker to be ready...');
+      await navigator.serviceWorker.ready;
+      console.log('Service worker is ready');
+      
       console.log('Getting VAPID public key from:', getVapidPublicKeyUrl());
       const vapidResponse = await axios.get(getVapidPublicKeyUrl());
       console.log('VAPID key response:', vapidResponse.data);
@@ -219,24 +241,68 @@ function App() {
         throw new Error('VAPID public key not found in response');
       }
       console.log('VAPID public key extracted:', vapidPublicKey.substring(0, 20) + '...');
+      console.log('VAPID public key length:', vapidPublicKey.length);
       
       // Check if already subscribed
       let subscription = await registration.pushManager.getSubscription();
       console.log('Existing subscription:', subscription ? 'Found' : 'None');
       
-      // If no subscription, create new one
+      // If subscription exists but we want to resubscribe, unsubscribe first
+      if (subscription) {
+        console.log('Unsubscribing from existing subscription...');
+        await subscription.unsubscribe();
+        console.log('Unsubscribed successfully');
+        subscription = null;
+      }
+      
+      // Create new subscription
       if (!subscription) {
         console.log('Creating new subscription...');
         
-        // Convert base64 VAPID key to Uint8Array
-        const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
-        console.log('VAPID key converted to Uint8Array');
+        // Verify notification permission
+        const permission = Notification.permission;
+        console.log('Current notification permission:', permission);
+        if (permission !== 'granted') {
+          throw new Error('Notification permission not granted. Current status: ' + permission);
+        }
         
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: applicationServerKey
-        });
-        console.log('New subscription created');
+        try {
+          // Convert base64 VAPID key to Uint8Array
+          const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+          console.log('VAPID key converted to Uint8Array, length:', applicationServerKey.length);
+          
+          // Expected length is 65 bytes for VAPID keys
+          if (applicationServerKey.length !== 65) {
+            console.warn('⚠️ VAPID key length is ' + applicationServerKey.length + ' bytes (expected 65)');
+          }
+          
+          console.log('Calling pushManager.subscribe...');
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+          });
+          console.log('✅ New subscription created successfully!');
+        } catch (subscribeError) {
+          console.error('❌ Push subscription error details:', {
+            name: subscribeError.name,
+            message: subscribeError.message,
+            code: subscribeError.code,
+            stack: subscribeError.stack,
+            permission: Notification.permission,
+            swState: registration.active?.state
+          });
+          
+          // Provide more specific error message
+          if (subscribeError.message && subscribeError.message.includes('Registration failed')) {
+            console.error('💡 This error often means:');
+            console.error('  1. VAPID key format is invalid');
+            console.error('  2. Service worker is not in correct state');
+            console.error('  3. Existing subscription is corrupted');
+            console.error('Try: Clear browser data and cookies, then try again');
+          }
+          
+          throw subscribeError;
+        }
       }
 
       // Save subscription to backend
